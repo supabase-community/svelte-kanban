@@ -1,5 +1,21 @@
 <script>
   export let list
+  import AddForm from './AddForm.svelte'
+
+  let adding = false
+
+  function add() {
+    adding = true
+  }
+
+  function cancel() {
+    adding = false
+  }
+
+  async function submit(event) {
+    dispatch('add', {title: event.detail, cards: []})
+    adding = false
+  }
 </script>
 
 <section>
@@ -19,12 +35,16 @@
     {/each}
   </ul>
 
-  <button class="add">
-    <svg height=20 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-    </svg>
-    <span>{list.cards.length == 0 ? 'Add a card' : 'Add another card'}</span>
-  </button>
+  {#if adding}
+    <AddForm placeholder="Enter a title for this card..." action="Add Card" on:submit={submit} on:close={cancel} class="add-card-form"/>
+  {:else}
+    <button class="add" on:click={add}>
+      <svg height=20 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+      </svg>
+      <span>{list.cards.length == 0 ? 'Add a card' : 'Add another card'}</span>
+    </button>
+  {/if}
 </section>
 
 <style>
@@ -84,5 +104,9 @@
     border-radius: 3px;
     padding: 0.3rem;
     box-shadow: 0px 1px #ddd;
+  }
+
+  :global(.add-card-form) {
+    margin: 0 0.4rem;
   }
 </style>
