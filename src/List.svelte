@@ -13,8 +13,8 @@
   }
 
   async function submit(event) {
-    dispatch('add', {title: event.detail, cards: []})
-    adding = false
+    list.cards.push({title: event.detail})
+    list = list
   }
 </script>
 
@@ -98,7 +98,7 @@
   ul {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
     margin: 0 0.4em 0.4em;
   }
 
