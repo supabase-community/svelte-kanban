@@ -7,26 +7,24 @@
   const dispatch = createEventDispatcher()
 
   let adding = false
-  let title = ""
 
   function add() {
     adding = true
   }
 
   function cancel() {
-    title = ""
     adding = false
   }
 
   async function submit(event) {
     dispatch('add', {title: event.detail, cards: []})
-    cancel()
+    adding = false
   }
 </script>
 
 <section class:adding>
   {#if adding}
-    <AddForm placeholder="Enter a list title..." on:submit={submit} on:close={cancel}/>
+    <AddForm placeholder="Enter a list title..." action="Add List" on:submit={submit} on:close={cancel}/>
   {:else}
     <button on:click={add}>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
