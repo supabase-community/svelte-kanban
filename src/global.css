@@ -1,5 +1,25 @@
-@import "tailwindcss/dist/base.css";
-@import "tailwindcss/dist/components.css";
-@import "tailwindcss/dist/utilities.css";
+/* @import "tailwindcss/dist/base.css"; */
+/* @import "tailwindcss/dist/components.css"; */
+/* @import "tailwindcss/dist/utilities.css"; */
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
 
 /* place global styles here */
+body {
+  font-family: Inter, Arial;
+  margin: 0;
+  background: rgb(0, 174, 204);
+}
