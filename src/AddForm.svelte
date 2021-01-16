@@ -24,10 +24,17 @@
     dispatch('close')
     value = ''
   }
+
+  function keydown(event) {
+    if (event.key == 'Escape') {
+      close()
+      event.preventDefault()
+    }
+  }
 </script>
 
 <form on:submit|preventDefault={submit} class={classes}>
-  <input bind:value bind:this={input} {placeholder}/>
+  <input bind:value bind:this={input} {placeholder} on:keydown={keydown}/>
 
   <div class="actions">
     <button class="submit" type="submit">{action}</button>
