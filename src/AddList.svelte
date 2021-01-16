@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte'
+  import AddForm from './AddForm.svelte'
 
   export let first = true
 
@@ -17,26 +18,15 @@
     expanded = false
   }
 
-  async function submit() {
-    dispatch('add', {title, cards: []})
+  async function submit(event) {
+    dispatch('add', {title: event.detail, cards: []})
     collapse()
   }
 </script>
 
 <section class:expanded>
   {#if expanded}
-    <form on:submit|preventDefault={submit}>
-      <input bind:value={title} placeholder="Enter a list title..."/>
-
-      <div class="actions">
-        <button class="submit" type="submit">Add List</button>
-        <button class="close" type="button" on:click={collapse}>
-          <svg height=20 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-    </form>
+    <AddForm placeholder="Enter a list title..." on:submit={submit} on:close={collapse}/>
   {:else}
     <button on:click={expand}>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -74,40 +64,5 @@
 
   button svg {
     height: 1.2rem;
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-  }
-
-  input {
-    padding: 0.4rem 0.5rem;
-    border-radius: 3px;
-    border: solid #666 2px;
-  }
-
-  input:focus {
-    outline: none;
-  }
-
-  form .actions {
-    display: flex;
-    margin: 0.5rem 0;
-  }
-
-  button.submit {
-    background: turquoise;
-    padding: 0.4rem;
-    border-radius: 3px;
-    text-align: center;
-    display: inline-block;
-    width: 100px;
-  }
-
-  button.close {
-    color: #444;
-    max-width: 30px;
-    text-align: center;
   }
 </style>
