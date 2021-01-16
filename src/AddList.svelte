@@ -6,29 +6,29 @@
 
   const dispatch = createEventDispatcher()
 
-  let expanded = false
+  let adding = false
   let title = ""
 
-  function expand() {
-    expanded = true
+  function add() {
+    adding = true
   }
 
-  function collapse() {
+  function cancel() {
     title = ""
-    expanded = false
+    adding = false
   }
 
   async function submit(event) {
     dispatch('add', {title: event.detail, cards: []})
-    collapse()
+    cancel()
   }
 </script>
 
-<section class:expanded>
-  {#if expanded}
-    <AddForm placeholder="Enter a list title..." on:submit={submit} on:close={collapse}/>
+<section class:adding>
+  {#if adding}
+    <AddForm placeholder="Enter a list title..." on:submit={submit} on:close={cancel}/>
   {:else}
-    <button on:click={expand}>
+    <button on:click={add}>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
       </svg>
@@ -50,7 +50,7 @@
     background-color: rgba(255, 255, 255, 0.4);
   }
 
-  section.expanded {
+  section.adding {
     background-color: #eee;
   }
 
