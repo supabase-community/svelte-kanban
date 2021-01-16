@@ -3,6 +3,7 @@
   import AddList from './AddList.svelte'
 
   const board = {
+    title: "TODO",
     lists: [
       {
         title: "A list",
@@ -27,8 +28,12 @@
   }
 </script>
 
+<svelte:head>
+  <title>{board.title}</title>
+</svelte:head>
+
 <header>
-  Kanban
+  {board.title}
 </header>
 
 <main>
@@ -42,11 +47,12 @@
 <style>
   header {
     text-align: center;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.1);
     color: rgba(255, 255, 255, 0.5);
     font-weight: bold;
     font-size: 1.2rem;
     padding: 0.5rem 0;
+    width: 100%;
   }
 
   main {
