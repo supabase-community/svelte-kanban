@@ -29,11 +29,13 @@
     </button>
   </div>
 
-  <ul>
-    {#each list.cards as card}
-      <li>{card.title}</li>
-    {/each}
-  </ul>
+  {#if list.cards.length}
+    <ul>
+      {#each list.cards as card}
+        <li>{card.title}</li>
+      {/each}
+    </ul>
+  {/if}
 
   {#if adding}
     <AddForm placeholder="Enter a title for this card..." action="Add Card" on:submit={submit} on:close={cancel} class="add-card-form"/>
@@ -62,10 +64,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin: 0.4rem;
   }
 
   h2 {
-    margin-left: 0.4rem;
+    margin: 0;
     font-weight: bold;
     font-size: 0.9rem;
   }
@@ -93,10 +96,10 @@
   }
 
   ul {
-    margin: 0.4rem;
     display: flex;
     flex-direction: column;
     gap: 5px;
+    margin: 0 0.4em 0.4em;
   }
 
   li {
