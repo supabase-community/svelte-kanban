@@ -46,9 +46,11 @@
   }
 
   input {
-    padding: 0.4rem 0.5rem;
+    padding: 0.5rem 0.5rem;
     border-radius: 3px;
-    border: solid #666 2px;
+    border: none;
+    box-shadow: 0 1px #CCC;
+    font-size: 0.9rem;
   }
 
   input:focus {
