@@ -78,7 +78,7 @@
   }
 
   button.submit {
-    background: turquoise;
+    background-color: #4dc7dc;
     padding: 0.4rem;
     border-radius: 3px;
     text-align: center;
