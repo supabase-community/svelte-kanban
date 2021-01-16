@@ -1,6 +1,9 @@
 <script>
   import { createEventDispatcher } from 'svelte'
 
+  let classes
+
+  export {classes as class}
   export let placeholder
   export let action = "Add"
 
@@ -18,7 +21,7 @@
   }
 </script>
 
-<form on:submit|preventDefault={submit}>
+<form on:submit|preventDefault={submit} class={classes}>
   <input bind:value {placeholder}/>
 
   <div class="actions">
