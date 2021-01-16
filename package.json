@@ -1,0 +1,34 @@
+{
+  "scripts": {
+    "start": "snowpack dev",
+    "build": "snowpack build",
+    "test": "jest",
+    "lint": "eslint",
+    "format": "eslint --fix"
+  },
+  "dependencies": {
+    "svelte": "^3.29.0"
+  },
+  "devDependencies": {
+    "@snowpack/app-scripts-svelte": "^1.9.0",
+    "@snowpack/plugin-dotenv": "^2.0.4",
+    "@snowpack/plugin-postcss": "^1.0.11",
+    "@snowpack/plugin-run-script": "^2.1.7",
+    "@snowpack/plugin-svelte": "^3.0.1",
+    "@testing-library/jest-dom": "^5.5.0",
+    "@testing-library/svelte": "^3.0.0",
+    "autoprefixer": "^10.1.0",
+    "cssnano": "^4.1.10",
+    "eslint": "^7.12.0",
+    "eslint-plugin-jest": "^24.1.0",
+    "eslint-plugin-svelte3": "^2.7.3",
+    "jest": "^26.2.2",
+    "postcss": "^8.2.1",
+    "postcss-cli": "^8.3.1",
+    "rollup": "^2.35.1",
+    "snowpack": "^2.15.0",
+    "snowpack-plugin-rollup-bundle": "^0.3.3",
+    "svelte-check": "^1.0.0",
+    "tailwindcss": "^2.0.2"
+  }
+}
