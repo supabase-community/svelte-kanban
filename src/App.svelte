@@ -6,17 +6,19 @@
     title: "TODO",
     lists: [
       {
+        id: 1,
         title: "A list",
         cards: [
-          {title: "Foo"},
-          {title: "Bar"}
+          {id: 1, title: "Foo"},
+          {id: 2, title: "Bar"}
         ]
       },
       {
+        id: 2,
         title: "Another list",
         cards: [
-          {title: "Foo"},
-          {title: "Bar"}
+          {id: 3, title: "Foo"},
+          {id: 4, title: "Bar"}
         ]
       }
     ]
