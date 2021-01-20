@@ -25,5 +25,52 @@ export default {
   },
   signOut() {
     return supabase.auth.signOut()
+  },
+  async getBoards() {
+    const {body} = await supabase
+      .from('boards')
+      .select('*')
+
+    return body
+  },
+  async getBoard(id) {
+    const {body} = await supabase
+      .from('boards')
+      .select('id, title, lists ( id, title, position, cards ( id, description, position ))')
+      .eq('id', id)
+      .single()
+
+    return body
+  },
+  async createBoard() {
+    const {body} = await supabase
+      .from('boards')
+      .insert({title: 'Untitled'})
+
+    return body[0]
+  },
+  async updateBoard(board) {
+    const {body} = await supabase
+      .from('boards')
+      .update({title: board.title})
+      .match({id: board.id})
+
+    return body[0]
+  },
+  async createList(board, title) {
+    const {body} = await supabase
+      .from('lists')
+      .insert({board_id: board.id, title})
+
+    const list = body[0]
+
+    return {...list, cards: []}
+  },
+  async createCard(list, description) {
+    const {body} = await supabase
+      .from('cards')
+      .insert({list_id: list.id, description})
+
+    return body[0]
   }
 }
