@@ -41,6 +41,9 @@
 {/if}
 
 <style>
+  div {
+    cursor: pointer;
+  }
   input {
     border: none;
     background: none;
