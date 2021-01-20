@@ -27,10 +27,15 @@
     list = list
   }
 
-  async function updateTitle({detail: title}) {
+  async function updateList({detail: title}) {
     list.title = title
     await db.updateList(list)
     list = list
+  }
+
+  async function updateCard({detail: description}, card) {
+    card.description = description
+    await db.updateCard(card)
   }
 
   function handleSort(e) {
@@ -46,7 +51,7 @@
 <section class:collapse class:shadow>
   <div class="header">
     <h2>
-      <InPlaceEdit bind:value={list.title} on:submit={updateTitle}/>
+      <InPlaceEdit bind:value={list.title} on:submit={updateList}/>
     </h2>
 
     <button class="menu">
@@ -60,7 +65,9 @@
     <ul use:dndzone={{items: list.cards, flipDurationMs, dropTargetStyle: '', transformDraggedElement, type: 'card'}} on:consider={handleSort} on:finalize={handleSort}>
       {#each list.cards as card(card.id)}
         <li animate:flip={{duration: flipDurationMs}}>
-          <span>{card.description}</span>
+          <div>
+            <InPlaceEdit bind:value={card.description} on:submit={e => updateCard(e, card)}/>
+          </div>
           <button class="pen">
             <svg height=14 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -158,7 +165,8 @@
   button.pen {
     position: absolute;
     right: 0;
-    margin: -2px 3px;
+    top: 0;
+    margin: 4px 3px;
     padding: 0.2rem 0.3rem;
     color: #999;
     visibility: hidden;

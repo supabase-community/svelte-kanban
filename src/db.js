@@ -80,5 +80,13 @@ export default {
       .insert({list_id: list.id, description})
 
     return body[0]
-  }
+  },
+  async updateCard(card) {
+    const {body} = await supabase
+      .from('cards')
+      .update({description: card.description})
+      .match({id: card.id})
+
+    return body[0]
+  },
 }
