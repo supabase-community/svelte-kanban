@@ -4,7 +4,8 @@
     "build": "snowpack build --polyfill-node",
     "test": "jest",
     "lint": "eslint",
-    "format": "eslint --fix"
+    "format": "eslint --fix",
+    "deploy": "vercel --prod"
   },
   "dependencies": {
     "svelte": "^3.29.0"
