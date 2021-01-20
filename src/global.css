@@ -15,7 +15,7 @@ ul {
 
 /* place global styles here */
 body {
-  font-family: Inter, Arial;
+  font-family: Inter, Arial, sans;
   margin: 0;
   background: rgb(0, 174, 204);
 }
