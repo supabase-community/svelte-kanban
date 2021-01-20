@@ -2,7 +2,7 @@
 
 A `snowpack` template for `svelte`.
 
-Configured with `jest`, `eslint`, `postcss`, `tailwind`, and `rollup` (for production builds).
+Configured with `jest`, `eslint`, `postcss`, and `rollup` (for production builds).
 
 # Usage
 
