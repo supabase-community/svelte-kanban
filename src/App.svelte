@@ -1,9 +1,9 @@
 <script>
   import { Route } from 'tinro'
-  import db from './db'
-  import Board from './Board.svelte'
-  import BoardList from './BoardList.svelte'
-  import Login from './Login.svelte'
+  import db from '@/db'
+  import Board from '@/pages/Board.svelte'
+  import BoardList from '@/pages/BoardList.svelte'
+  import Login from '@/pages/Login.svelte'
 
   let user = db.user
 </script>

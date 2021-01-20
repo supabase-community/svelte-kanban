@@ -1,8 +1,8 @@
 <script>
-  import Header from './Header.svelte'
-  import AddForm from './AddForm.svelte'
+  import Header from '@/components/Header.svelte'
+  import AddForm from '@/components/AddForm.svelte'
   import { onMount } from 'svelte'
-  import db from './db'
+  import db from '@/db'
   import { router } from 'tinro'
 
   let boards = []

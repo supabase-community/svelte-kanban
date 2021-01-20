@@ -1,6 +1,6 @@
 <script>
   import { fly, fade } from 'svelte/transition'
-  import db from './db'
+  import db from '@/db'
 
   let email, sent = false
 

@@ -1,5 +1,5 @@
 <script>
-  import db from './db'
+  import db from '@/db'
   import gravatarUrl from 'gravatar-url'
 
   const user = db.user

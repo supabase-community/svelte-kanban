@@ -4,9 +4,9 @@
   import {cubicIn} from 'svelte/easing'
   import {flip} from 'svelte/animate'
   import AddForm from './AddForm.svelte'
-  import db from './db'
+  import db from '@/db'
 
-  const flipDurationMs = 200;
+  const flipDurationMs = 200
 
   export let list, collapse = false, shadow = false
 

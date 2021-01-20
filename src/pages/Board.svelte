@@ -4,11 +4,11 @@
   import {fade} from 'svelte/transition'
   import {cubicIn} from 'svelte/easing'
   import {flip} from 'svelte/animate'
-  import List from './List.svelte'
-  import AddList from './AddList.svelte'
-  import BoardTitle from './BoardTitle.svelte'
-  import Header from './Header.svelte'
-  import db from './db'
+  import List from '@/components/List.svelte'
+  import AddList from '@/components/AddList.svelte'
+  import BoardTitle from '@/components/BoardTitle.svelte'
+  import Header from '@/components/Header.svelte'
+  import db from '@/db'
 
   const flipDurationMs = 200;
   let loading = true
