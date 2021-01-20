@@ -5,6 +5,7 @@
   import {flip} from 'svelte/animate'
   import List from './List.svelte'
   import AddList from './AddList.svelte'
+  import Header from './Header.svelte'
 
   const flipDurationMs = 200;
   const board = {
@@ -48,9 +49,9 @@
   <title>{board.title}</title>
 </svelte:head>
 
-<header>
+<Header>
   {board.title}
-</header>
+</Header>
 
 <main>
   <div use:dndzone={{items: board.lists, flipDurationMs, dropTargetStyle: '', transformDraggedElement, type: 'board'}} on:consider={handleSort} on:finalize={handleSort}>
@@ -69,16 +70,6 @@
 </main>
 
 <style>
-  header {
-    text-align: center;
-    background-color: rgba(0, 0, 0, 0.1);
-    color: rgba(255, 255, 255, 0.5);
-    font-weight: bold;
-    font-size: 1.2rem;
-    padding: 0.5rem 0;
-    width: 100%;
-  }
-
   main {
     margin: 1rem;
   }

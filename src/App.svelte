@@ -8,16 +8,11 @@
   let user = db.user
 </script>
 
-<svelte:head>
-  <title>Kanban</title>
-</svelte:head>
-
 {#if $user}
-  <button on:click={() => db.signOut()}>Sign out</button>
   <Route path="/">
     <BoardList/>
   </Route>
-  <Route path="/:id" let:meta>
+  <Route path="/boards/:id" let:meta>
     <Board id={meta.params.id}/>
   </Route>
 {:else}

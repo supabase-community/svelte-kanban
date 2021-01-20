@@ -10,6 +10,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Kanban</title>
+</svelte:head>
+
 <div class="wrapper">
   {#if sent}
     <div class="container">

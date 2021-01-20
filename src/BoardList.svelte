@@ -1,5 +1,11 @@
+<script>
+  import Header from './Header.svelte'
+</script>
+
 <svelte:head>
   <title>Boards</title>
 </svelte:head>
 
-<h1>Boards</h1>
+<Header>
+  Boards
+</Header>

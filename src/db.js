@@ -6,7 +6,7 @@ const supabase = createClient(
   import.meta.env.SNOWPACK_PUBLIC_SUPABASE_KEY,
 )
 
-const userStore = writable(supabase.auth.user)
+const userStore = writable(supabase.auth.currentUser)
 
 supabase.auth.onAuthStateChange((event, session) => {
   if (event == 'SIGNED_IN') {
