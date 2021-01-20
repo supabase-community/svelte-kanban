@@ -29,7 +29,7 @@
 
 {#if editing}
   <form on:submit|preventDefault={submit} on:keydown={keydown}>
-    <input autofocus bind:value on:blur={submit}/>
+    <input autofocus bind:value on:blur={submit} required/>
   </form>
 {:else}
   <div on:click={edit}>
