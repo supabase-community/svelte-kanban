@@ -52,6 +52,7 @@
 
   li {
     background: #fff7;
+    border-radius: 3px;
   }
 
   li a, li button {
@@ -59,6 +60,7 @@
     height: 150px;
     min-width: 150px;
     padding: 1rem;
+    transition: all 0.3s ease-in-out;
   }
 
   li.add {
@@ -69,5 +71,9 @@
     display: block;
     color: #444;
     text-decoration: none;
+  }
+
+  li a:hover, li button:hover {
+    background: #fff8;
   }
 </style>
