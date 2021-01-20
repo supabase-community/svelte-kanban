@@ -6,7 +6,7 @@
   import {flip} from 'svelte/animate'
   import List from '@/components/List.svelte'
   import AddList from '@/components/AddList.svelte'
-  import BoardTitle from '@/components/BoardTitle.svelte'
+  import InPlaceEdit from '@/components/InPlaceEdit.svelte'
   import Header from '@/components/Header.svelte'
   import db from '@/db'
 
@@ -31,6 +31,12 @@
     board = board
   }
 
+  async function updateTitle({detail: title}) {
+    board.title = title
+    await db.updateBoard(board)
+    board = board
+  }
+
   function handleSort(e) {
     board.lists = e.detail.items
     board = board
@@ -47,7 +53,7 @@
 
 <Header>
   {#if board}
-    <BoardTitle bind:board/>
+    <InPlaceEdit bind:value={board.title} on:submit={updateTitle}/>
   {/if}
 </Header>
 

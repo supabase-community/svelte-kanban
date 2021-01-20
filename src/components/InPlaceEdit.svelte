@@ -1,27 +1,30 @@
 <script>
-  import db from '@/db'
+  import { createEventDispatcher, onMount } from 'svelte'
 
-  let editing = false
+  export let value
 
-  export let board
+  const dispatch = createEventDispatcher()
+  let editing = false, original
 
-  let value = board.title
+  onMount(() => {
+    original = value
+  })
 
   function edit() {
     editing = true
   }
 
-  async function submit() {
-    board.title = value 
-    await db.updateBoard(board)
+  function submit() {
+    if (value != original) {
+      dispatch('submit', value)
+    }
     editing = false
-    board = board
   }
 
   function keydown(event) {
     if (event.key == 'Escape') {
       event.preventDefault()
-      value = board.title
+      value = original
       editing = false
     }
   }
@@ -33,7 +36,7 @@
   </form>
 {:else}
   <div on:click={edit}>
-    {board.title}
+    {value}
   </div>
 {/if}
 
