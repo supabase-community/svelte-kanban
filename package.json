@@ -31,6 +31,7 @@
     "snowpack-plugin-rollup-bundle": "^0.3.3",
     "svelte-check": "^1.0.0",
     "svelte-dnd-action": "^0.8.6",
-    "tailwindcss": "^2.0.2"
+    "tailwindcss": "^2.0.2",
+    "tinro": "^0.5.8"
   }
 }

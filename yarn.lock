@@ -7257,6 +7257,11 @@ timsort@^0.3.0:
   resolved "https://registry.yarnpkg.com/timsort/-/timsort-0.3.0.tgz#405411a8e7e6339fe64db9a234de11dc31e02bd4"
   integrity sha1-QFQRqOfmM5/mTbmiNN4R3DHgK9Q=
 
+tinro@^0.5.8:
+  version "0.5.8"
+  resolved "https://registry.yarnpkg.com/tinro/-/tinro-0.5.8.tgz#612ebe1c8242868d8db2e87f9c167787a54ac595"
+  integrity sha512-ENeqOBr93FHvlbteovIcPAsM4cfBO/ZVC/VU0Uo3IKL3m6eFNpSuig4y+ttiy23rPBBskkA8WQM8kP385cElYA==
+
 tmpl@1.0.x:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/tmpl/-/tmpl-1.0.4.tgz#23640dd7b42d00433911140820e5cf440e521dd1"
