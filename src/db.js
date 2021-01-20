@@ -66,6 +66,14 @@ export default {
 
     return {...list, cards: []}
   },
+  async updateList(list) {
+    const {body} = await supabase
+      .from('lists')
+      .update({title: list.title})
+      .match({id: list.id})
+
+    return body[0]
+  },
   async createCard(list, description) {
     const {body} = await supabase
       .from('cards')

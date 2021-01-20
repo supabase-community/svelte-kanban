@@ -3,6 +3,7 @@
   import {fade} from 'svelte/transition'
   import {cubicIn} from 'svelte/easing'
   import {flip} from 'svelte/animate'
+  import InPlaceEdit from '@/components/InPlaceEdit.svelte'
   import AddForm from './AddForm.svelte'
   import db from '@/db'
 
@@ -26,6 +27,12 @@
     list = list
   }
 
+  async function updateTitle({detail: title}) {
+    list.title = title
+    await db.updateList(list)
+    list = list
+  }
+
   function handleSort(e) {
     list.cards = e.detail.items
     list = list
@@ -38,7 +45,9 @@
 
 <section class:collapse class:shadow>
   <div class="header">
-    <h2>{list.title}</h2>
+    <h2>
+      <InPlaceEdit bind:value={list.title} on:submit={updateTitle}/>
+    </h2>
 
     <button class="menu">
       <svg height=20 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
