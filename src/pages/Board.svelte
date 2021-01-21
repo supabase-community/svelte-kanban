@@ -44,6 +44,13 @@
     board = board
   }
 
+  async function updateSort(e) {
+    board.lists = e.detail.items
+    board = board
+
+    await db.boards.sort(board)
+  }
+
   function transformDraggedElement(element) {
     element.classList.add('list-dragging')
   }
@@ -63,7 +70,7 @@
   {#if loading}
     Loading...
   {:else}
-    <div use:dndzone={{items: board.lists, flipDurationMs, dropTargetStyle: '', transformDraggedElement, type: 'board'}} on:consider={handleSort} on:finalize={handleSort}>
+    <div use:dndzone={{items: board.lists, flipDurationMs, dropTargetStyle: '', transformDraggedElement, type: 'board'}} on:consider={handleSort} on:finalize={updateSort}>
       {#each board.lists as list (list.id)}
         <List {list} collapse={list[SHADOW_ITEM_MARKER_PROPERTY_NAME]}/>
 

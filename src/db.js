@@ -65,6 +65,16 @@ export default {
 
       return body[0]
     },
+
+    async sort(board) {
+      const {body} = await supabase
+        .rpc('sort_board', {
+          board_id: board.id,
+          list_ids: board.lists.map(list => list.id)
+        })
+
+      return body
+    }
   },
 
   lists: {
@@ -86,6 +96,7 @@ export default {
 
       return body[0]
     },
+
   },
 
   cards: {
