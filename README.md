@@ -1,6 +1,6 @@
 # Supabase/Svelte Kanban
 
-A clone of Trello that uses Supabase as the storage system.
+A Trello clone using [Supabase](https://supabase.io) as the storage system.
 
 ## [Live Demo](https://supabase-kanban.vercel.app/)
 
