@@ -70,3 +70,46 @@ create policy "Individuals can update their own cards." on cards for
 
 create policy "Individuals can delete their own cards." on cards for
     delete using (auth.uid() = user_id);
+
+
+create or replace function sort_board(board_id bigint, list_ids bigint[]) returns boolean
+security invoker
+as
+$$
+#variable_conflict use_variable
+declare
+  list_id bigint;
+begin
+  for i in 1 .. array_upper(list_ids, 1)
+   loop
+      list_id := list_ids[i];
+
+      update lists set position = i - 1
+        where lists.board_id = board_id
+            and lists.id = list_id;
+   end loop;
+
+   return true;
+end
+$$ language plpgsql;
+
+create or replace function sort_list(list_id bigint, card_ids bigint[]) returns boolean
+security invoker
+as
+$$
+#variable_conflict use_variable
+declare
+  card_id bigint;
+begin
+  for i in 1 .. array_upper(card_ids, 1)
+   loop
+      card_id := card_ids[i];
+
+      update cards set position = i - 1
+        where cards.list_id = list_id
+            and cards.id = card_id;
+   end loop;
+
+   return true;
+end
+$$ language plpgsql;
