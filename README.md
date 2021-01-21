@@ -10,7 +10,7 @@ A [Trello](https://trello.com) clone using [Supabase](https://supabase.io) as th
 
 # Setup locally
 
-1. Clone repo `gh repo clone joshnuss/supabase-kanban` and install dependencies `yarn start`
+1. Clone the repo with `gh repo clone joshnuss/supabase-kanban` and install dependencies with `yarn install`
 2. Setup the database on [supabase](https://supabase.io) use [`setup.sql`](https://github.com/joshnuss/supabase-kanban/blob/master/setup.sql)
 3. Update the credentials in `.env.development`
 4. Start development server with `yarn start`
