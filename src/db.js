@@ -30,6 +30,7 @@ export default {
     const {body} = await supabase
       .from('boards')
       .select('*')
+      .order('position')
 
     return body
   },
@@ -38,14 +39,17 @@ export default {
       .from('boards')
       .select('id, title, lists ( id, title, position, cards ( id, description, position ))')
       .eq('id', id)
+      .order('position')
+      .order('position', {foreignTable: 'lists'})
+      .order('position', {foreignTable: 'lists.cards'})
       .single()
 
     return body
   },
-  async createBoard() {
+  async createBoard(board) {
     const {body} = await supabase
       .from('boards')
-      .insert({title: 'Untitled'})
+      .insert(board)
 
     return body[0]
   },
@@ -57,10 +61,10 @@ export default {
 
     return body[0]
   },
-  async createList(board, title) {
+  async createList(board, data) {
     const {body} = await supabase
       .from('lists')
-      .insert({board_id: board.id, title})
+      .insert({board_id: board.id, ...data})
 
     const list = body[0]
 
@@ -74,10 +78,10 @@ export default {
 
     return body[0]
   },
-  async createCard(list, description) {
+  async createCard(list, data) {
     const {body} = await supabase
       .from('cards')
-      .insert({list_id: list.id, description})
+      .insert({list_id: list.id, ...data})
 
     return body[0]
   },

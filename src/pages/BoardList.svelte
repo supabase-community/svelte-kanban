@@ -14,7 +14,10 @@
   })
 
   async function add() {
-    const board = await db.createBoard()
+    const board = await db.createBoard({
+      title: 'Untitled',
+      position: boards.length
+    })
 
     router.goto(`/boards/${board.id}`)
   }

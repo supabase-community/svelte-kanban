@@ -22,7 +22,10 @@
   }
 
   async function submit(event) {
-    const card = await db.createCard(list, event.detail)
+    const card = await db.createCard(list, {
+      description: event.detail,
+      position: list.cards.length
+    })
     list.cards.push(card)
     list = list
   }

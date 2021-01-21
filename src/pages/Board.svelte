@@ -25,7 +25,10 @@
   })
 
   async function addList({detail}) {
-    const list = await db.createList(board, detail.title)
+    const list = await db.createList(board, {
+      title: detail.title,
+      position: board.lists.length
+    })
 
     board.lists.push(list)
     board = board
