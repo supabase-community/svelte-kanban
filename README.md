@@ -4,6 +4,8 @@ A [Trello](https://trello.com) clone using [Supabase](https://supabase.io) as th
 
 ## [Live Demo](https://supabase-kanban.vercel.app/)
 
+### Screenshot
+
 ![Screenshot](https://github.com/joshnuss/supabase-kanban/blob/master/screenshot.png)
 
 # Setup locally
