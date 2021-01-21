@@ -9,12 +9,12 @@
   let loading = true
 
   onMount(async () => {
-    boards = await db.getBoards()
+    boards = await db.boards.all()
     loading = false
   })
 
   async function add() {
-    const board = await db.createBoard({
+    const board = await db.boards.create({
       title: 'Untitled',
       position: boards.length
     })

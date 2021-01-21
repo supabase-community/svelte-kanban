@@ -17,7 +17,7 @@
   export let id
 
   onMount(() => {
-    db.getBoard(id)
+    db.boards.get(id)
       .then(result => {
         board = result
         loading = false
@@ -25,7 +25,7 @@
   })
 
   async function addList({detail}) {
-    const list = await db.createList(board, {
+    const list = await db.lists.create(board, {
       title: detail.title,
       position: board.lists.length
     })
@@ -36,7 +36,7 @@
 
   async function updateTitle({detail: title}) {
     board.title = title
-    await db.updateBoard(board)
+    await db.boards.update(board)
     board = board
   }
 

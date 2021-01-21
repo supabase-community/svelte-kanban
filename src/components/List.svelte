@@ -22,7 +22,7 @@
   }
 
   async function submit(event) {
-    const card = await db.createCard(list, {
+    const card = await db.cards.create(list, {
       description: event.detail,
       position: list.cards.length
     })
@@ -32,13 +32,13 @@
 
   async function updateList({detail: title}) {
     list.title = title
-    await db.updateList(list)
+    await db.lists.update(list)
     list = list
   }
 
   async function updateCard({detail: description}, card) {
     card.description = description
-    await db.updateCard(card)
+    await db.cards.update(card)
   }
 
   function handleSort(e) {
