@@ -8,6 +8,10 @@
     await db.signIn(email)
     sent = true
   }
+
+  function focus(element) {
+    element.focus()
+  }
 </script>
 
 <svelte:head>
@@ -31,7 +35,7 @@
       <form on:submit|preventDefault={submit}>
         <label>
           <span>E-mail Address</span>
-          <input name="email" type="email" required bind:value={email} autofocus/>
+          <input name="email" type="email" required bind:value={email} use:focus/>
         </label>
         <button>
           <svg class="icon" height=24 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

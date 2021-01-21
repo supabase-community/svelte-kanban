@@ -28,11 +28,15 @@
       editing = false
     }
   }
+
+  function focus(element) {
+    element.focus()
+  }
 </script>
 
 {#if editing}
   <form on:submit|preventDefault={submit} on:keydown={keydown}>
-    <input autofocus bind:value on:blur={submit} required/>
+    <input bind:value on:blur={submit} required use:focus/>
   </form>
 {:else}
   <div on:click={edit}>

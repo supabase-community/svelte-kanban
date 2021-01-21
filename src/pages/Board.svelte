@@ -3,14 +3,13 @@
   import {dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME} from 'svelte-dnd-action'
   import {fade} from 'svelte/transition'
   import {cubicIn} from 'svelte/easing'
-  import {flip} from 'svelte/animate'
   import List from '@/components/List.svelte'
   import AddList from '@/components/AddList.svelte'
   import InPlaceEdit from '@/components/InPlaceEdit.svelte'
   import Header from '@/components/Header.svelte'
   import db from '@/db'
 
-  const flipDurationMs = 200;
+  const flipDurationMs = 200
   let loading = true
   let board
 

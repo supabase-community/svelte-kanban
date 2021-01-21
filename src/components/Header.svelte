@@ -10,7 +10,7 @@
   <slot/>
   <!-- <button on:click={() => db.signOut()}>Sign out</button> -->
 
-  <img src={gravatarUrl($user.email, {size: 40})}/>
+  <img src={gravatarUrl($user.email, {size: 40})} alt="Gravatar"/>
 </header>
 
 <style>

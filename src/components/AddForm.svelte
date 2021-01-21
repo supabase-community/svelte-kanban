@@ -5,7 +5,7 @@
 
   export {classes as class}
   export let placeholder
-  export let action = "Add"
+  export let action = 'Add'
 
   const dispatch = createEventDispatcher()
   let input
