@@ -41,6 +41,11 @@ Formats all files according to rules defined in `.eslintrc.js`.
 Builds a static copy of your site to the `build/` folder.
 Your app is ready to be deployed!
 
+### yarn deploy
+
+Deploys the app to [vercel](https://vercel.com)
+Your app is ready to be deployed!
+
 # License
 
 MIT
