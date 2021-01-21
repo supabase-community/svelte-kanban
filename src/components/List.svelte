@@ -41,6 +41,13 @@
     await db.cards.update(card)
   }
 
+  async function updateSort(e) {
+    list.cards = e.detail.items
+    list = list
+
+    await db.lists.sort(list)
+  }
+
   function handleSort(e) {
     list.cards = e.detail.items
     list = list
@@ -65,7 +72,7 @@
   </div>
 
   {#if list.cards.length}
-    <ul use:dndzone={{items: list.cards, flipDurationMs, dropTargetStyle: '', transformDraggedElement, type: 'card'}} on:consider={handleSort} on:finalize={handleSort}>
+    <ul use:dndzone={{items: list.cards, flipDurationMs, dropTargetStyle: '', transformDraggedElement, type: 'card'}} on:consider={handleSort} on:finalize={updateSort}>
       {#each list.cards as card(card.id)}
         <li animate:flip={{duration: flipDurationMs}}>
           <div>

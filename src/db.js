@@ -97,6 +97,15 @@ export default {
       return body[0]
     },
 
+    async sort(list) {
+      const {body} = await supabase
+        .rpc('sort_list', {
+          list_id: list.id,
+          card_ids: list.cards.map(card => card.id)
+        })
+
+      return body
+    }
   },
 
   cards: {
