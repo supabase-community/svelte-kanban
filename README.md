@@ -46,7 +46,6 @@ Your app is ready to be deployed!
 ### yarn deploy
 
 Deploys the app to [vercel](https://vercel.com)
-Your app is ready to be deployed!
 
 # License
 
