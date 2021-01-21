@@ -1,16 +1,18 @@
-# Svelte Snowpack Template
+# Supabase/Svelte Kanban
 
-A `snowpack` template for `svelte`.
+A clone of Trello that uses Supabase as the storage system.
 
-Configured with `jest`, `eslint`, `postcss`, and `rollup` (for production builds).
+## [Live Demo](https://supabase-kanban.vercel.app/)
 
-# Usage
+![Screenshot](https://github.com/joshnuss/supabase-kanban/blob/master/screenshot.png)
 
-To use this template:
+# Setup locally
 
-```bash
-npx create-snowpack-app --template @joshnuss/svelte-snowpack-template --target path/to/dir
-```
+1. Clone repo `gh repo clone joshnuss/supabase-kanban` and install dependencies `yarn start`
+2. Setup the database on [supabase](https://supabase.io) use [`setup.sql`](https://github.com/joshnuss/supabase-kanban/blob/master/setup.sql)
+3. Update the credentials in `.env.development`
+4. Start development server with `yarn start`
+5. Done!
 
 ## Available Scripts
 
