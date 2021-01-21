@@ -93,7 +93,7 @@ begin
 end
 $$ language plpgsql;
 
-create or replace function sort_list(list_id bigint, card_ids bigint[]) returns boolean
+create or replace function sort_list(new_list_id bigint, card_ids bigint[]) returns boolean
 security invoker
 as
 $$
@@ -105,9 +105,8 @@ begin
    loop
       card_id := card_ids[i];
 
-      update cards set position = i - 1
-        where cards.list_id = list_id
-            and cards.id = card_id;
+      update cards set position = i - 1, list_id = new_list_id
+        where cards.id = card_id;
    end loop;
 
    return true;

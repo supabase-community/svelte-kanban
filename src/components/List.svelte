@@ -71,26 +71,24 @@
     </button>
   </div>
 
-  {#if list.cards.length}
-    <ul use:dndzone={{items: list.cards, flipDurationMs, dropTargetStyle: '', transformDraggedElement, type: 'card'}} on:consider={handleSort} on:finalize={updateSort}>
-      {#each list.cards as card(card.id)}
-        <li animate:flip={{duration: flipDurationMs}}>
-          <div>
-            <InPlaceEdit bind:value={card.description} on:submit={e => updateCard(e, card)}/>
-          </div>
-          <button class="pen">
-            <svg height=14 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-          </button>
+  <ul use:dndzone={{items: list.cards, flipDurationMs, dropTargetStyle: '', transformDraggedElement, type: 'card'}} on:consider={handleSort} on:finalize={updateSort}>
+    {#each list.cards as card(card.id)}
+      <li animate:flip={{duration: flipDurationMs}}>
+        <div>
+          <InPlaceEdit bind:value={card.description} on:submit={e => updateCard(e, card)}/>
+        </div>
+        <button class="pen">
+          <svg height=14 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </button>
 
-          {#if card[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-            <div in:fade={{duration: 200, easing: cubicIn}} class='drag-shadow'>{card.title}</div>
-          {/if}
-        </li>
-      {/each}
-    </ul>
-  {/if}
+        {#if card[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+          <div in:fade={{duration: 200, easing: cubicIn}} class='drag-shadow'>{card.title}</div>
+        {/if}
+      </li>
+    {/each}
+  </ul>
 
   {#if adding}
     <AddForm placeholder="Enter a title for this card..." action="Add Card" on:submit={submit} on:close={cancel} class="add-card-form"/>
@@ -159,6 +157,7 @@
     flex-direction: column;
     gap: 6px;
     margin: 0 0.4em 0.4em;
+    min-height: 10px;
   }
 
   li {
