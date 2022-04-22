@@ -4,3 +4,4 @@ web_modules
 node_modules
 .vercel
 .env.production
+.env

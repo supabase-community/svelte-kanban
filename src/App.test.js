@@ -1,8 +1,12 @@
+import '@testing-library/jest-dom'
 import { render } from '@testing-library/svelte'
-import App from './App'
+import { describe, it, expect } from 'vitest'
+import App from '@/App.svelte'
 
-test('renders learn svelte link', () => {
-  const { getByText } = render(App)
-  const linkElement = getByText(/learn svelte/i)
-  expect(linkElement).toBeInTheDocument()
+describe('App.svelte', () => {
+  it('renders Sign in form', () => {
+    const { getByText } = render(App)
+    const linkElement = getByText(/Sign in/i)
+    expect(linkElement).toBeInTheDocument()
+  })
 })

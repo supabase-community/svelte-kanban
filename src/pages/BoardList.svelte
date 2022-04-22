@@ -26,20 +26,20 @@
   <title>Boards</title>
 </svelte:head>
 
-<Header>
-  Boards
-</Header>
+<Header>Boards</Header>
 
 <main>
   <ul>
     {#each boards as board}
       <li>
-        <a href='/boards/{board.id}'>{board.title}</a>
+        <a href="/boards/{board.id}">{board.title}</a>
       </li>
     {/each}
 
     <li class="add">
-      <button on:click={add}>{boards.length == 0 ? 'Add a board' : 'Add another board'}</button>
+      <button on:click={add}
+        >{boards.length == 0 ? 'Add a board' : 'Add another board'}</button
+      >
     </li>
   </ul>
 </main>
@@ -57,7 +57,8 @@
     border-radius: 3px;
   }
 
-  li a, li button {
+  li a,
+  li button {
     display: block;
     height: 150px;
     min-width: 150px;
@@ -75,7 +76,8 @@
     text-decoration: none;
   }
 
-  li a:hover, li button:hover {
+  li a:hover,
+  li button:hover {
     background: #fff8;
   }
 </style>

@@ -10,17 +10,15 @@
 
 {#if $user}
   <Route path="/">
-    <BoardList/>
+    <BoardList />
   </Route>
   <Route path="/boards/:id" let:meta>
-    <Board id={meta.params.id}/>
+    <Board id={meta.params.id} />
   </Route>
 {:else}
   <Route path="/">
-    <Login/>
+    <Login />
   </Route>
 {/if}
 
-<Route fallback>
-  Aw shucks. That couldn't be found.
-</Route>
+<Route fallback>Aw shucks. That couldn't be found.</Route>
