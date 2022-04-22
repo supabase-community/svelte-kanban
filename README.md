@@ -6,12 +6,12 @@ A [Trello](https://trello.com) clone using [Supabase](https://supabase.io) as th
 
 ### Screenshot
 
-![Screenshot](https://github.com/supabase-community/supabase-kanban/blob/master/screenshot.png)
+![Screenshot](https://github.com/supabase-community/supabase-kanban/blob/main/screenshot.png)
 
 # Setup locally
 
 1. Clone the repo with `gh repo clone supabase-community/supabase-kanban` and install dependencies with `pnpm install`
-2. Setup the database on [supabase](https://supabase.io) and run the commands in [`setup.sql`](https://github.com/supabase-community/supabase-kanban/blob/master/setup.sql)
+2. Setup the database on [supabase](https://supabase.io) and run the commands in [`setup.sql`](https://github.com/supabase-community/supabase-kanban/blob/main/setup.sql)
 3. Rename `.env.example` to `.env` and update the credentials
 4. Start development server with `pnpm dev`
 5. Done!
