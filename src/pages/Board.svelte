@@ -1,8 +1,8 @@
 <script>
-  import {onMount} from 'svelte'
-  import {dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME} from 'svelte-dnd-action'
-  import {fade} from 'svelte/transition'
-  import {cubicIn} from 'svelte/easing'
+  import { onMount } from 'svelte'
+  import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action'
+  import { fade } from 'svelte/transition'
+  import { cubicIn } from 'svelte/easing'
   import List from '@/components/List.svelte'
   import AddList from '@/components/AddList.svelte'
   import InPlaceEdit from '@/components/InPlaceEdit.svelte'
@@ -16,14 +16,13 @@
   export let id
 
   onMount(() => {
-    db.boards.get(id)
-      .then(result => {
-        board = result
-        loading = false
-      })
+    db.boards.get(id).then((result) => {
+      board = result
+      loading = false
+    })
   })
 
-  async function addList({detail}) {
+  async function addList({ detail }) {
     const list = await db.lists.create(board, {
       title: detail.title,
       position: board.lists.length
@@ -33,7 +32,7 @@
     board = board
   }
 
-  async function updateTitle({detail: title}) {
+  async function updateTitle({ detail: title }) {
     board.title = title
     await db.boards.update(board)
     board = board
@@ -62,7 +61,7 @@
 
 <Header>
   {#if board}
-    <InPlaceEdit bind:value={board.title} on:submit={updateTitle}/>
+    <InPlaceEdit bind:value={board.title} on:submit={updateTitle} />
   {/if}
 </Header>
 
@@ -70,19 +69,29 @@
   {#if loading}
     Loading...
   {:else}
-    <div use:dndzone={{items: board.lists, flipDurationMs, dropTargetStyle: '', transformDraggedElement, type: 'board'}} on:consider={handleSort} on:finalize={updateSort}>
+    <div
+      use:dndzone={{
+        items: board.lists,
+        flipDurationMs,
+        dropTargetStyle: '',
+        transformDraggedElement,
+        type: 'board'
+      }}
+      on:consider={handleSort}
+      on:finalize={updateSort}
+    >
       {#each board.lists as list (list.id)}
-        <List {list} collapse={list[SHADOW_ITEM_MARKER_PROPERTY_NAME]}/>
+        <List {list} collapse={list[SHADOW_ITEM_MARKER_PROPERTY_NAME]} />
 
         {#if list[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-          <div in:fade={{duration: 200, easing: cubicIn}} class='drag-shadow'>
-            <List {list} shadow={true}/>
+          <div in:fade={{ duration: 200, easing: cubicIn }} class="drag-shadow">
+            <List {list} shadow={true} />
           </div>
         {/if}
       {/each}
     </div>
 
-    <AddList first={board.lists.length == 0} on:add={addList}/>
+    <AddList first={board.lists.length == 0} on:add={addList} />
   {/if}
 </main>
 
@@ -91,7 +100,8 @@
     margin: 1rem;
   }
 
-  main, main > div {
+  main,
+  main > div {
     display: flex;
     align-items: flex-start;
     gap: 0.5rem;

@@ -6,44 +6,44 @@ A [Trello](https://trello.com) clone using [Supabase](https://supabase.io) as th
 
 ### Screenshot
 
-![Screenshot](https://github.com/joshnuss/supabase-kanban/blob/master/screenshot.png)
+![Screenshot](https://github.com/supabase-community/supabase-kanban/blob/master/screenshot.png)
 
 # Setup locally
 
-1. Clone the repo with `gh repo clone joshnuss/supabase-kanban` and install dependencies with `yarn install`
-2. Setup the database on [supabase](https://supabase.io) and run the commands in [`setup.sql`](https://github.com/joshnuss/supabase-kanban/blob/master/setup.sql)
-3. Update the credentials in `.env.development`
-4. Start development server with `yarn start`
+1. Clone the repo with `gh repo clone supabase-community/supabase-kanban` and install dependencies with `pnpm install`
+2. Setup the database on [supabase](https://supabase.io) and run the commands in [`setup.sql`](https://github.com/supabase-community/supabase-kanban/blob/master/setup.sql)
+3. Rename `.env.example` to `.env` and update the credentials
+4. Start development server with `pnpm dev`
 5. Done!
 
 ## Available Scripts
 
-### yarn start
+### pnpm start
 
 Runs the app in the development mode.
-Open http://localhost:8080 to view it in the browser.
+Open http://localhost:3000 to view it in the browser.
 
 The page will reload if you make edits.
 You will also see any lint errors in the console.
 
-### yarn test
+### pnpm test
 
-Runs `jest` on all `*.test.js` files.
+Runs `vitest` on all `*.test.js` files.
 
-### yarn lint
+### pnpm lint
 
 Runs `eslint` on all files.
 
-### yarn format
+### pnpm format
 
 Formats all files according to rules defined in `.eslintrc.js`.
 
-### yarn build
+### pnpm build
 
 Builds a static copy of your site to the `build/` folder.
 Your app is ready to be deployed!
 
-### yarn deploy
+### pnpm deploy
 
 Deploys the app to [vercel](https://vercel.com)
 
