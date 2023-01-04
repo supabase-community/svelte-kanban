@@ -16,36 +16,28 @@ A [Trello](https://trello.com) clone using [Supabase](https://supabase.io) as th
 4. Start development server with `pnpm dev`
 5. Done!
 
-## Available Scripts
+## Developing
 
-### pnpm start
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-Runs the app in the development mode.
-Open http://localhost:3000 to view it in the browser.
+```bash
+npm run dev
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
 
-### pnpm test
+## Building
 
-Runs `vitest` on all `*.test.js` files.
+To create a production version of your app:
 
-### pnpm lint
+```bash
+npm run build
+```
 
-Runs `eslint` on all files.
+You can preview the production build with `npm run preview`.
 
-### pnpm format
-
-Formats all files according to rules defined in `.eslintrc.js`.
-
-### pnpm build
-
-Builds a static copy of your site to the `build/` folder.
-Your app is ready to be deployed!
-
-### pnpm deploy
-
-Deploys the app to [vercel](https://vercel.com)
+> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
 # License
 
