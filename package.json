@@ -1,34 +1,35 @@
 {
-  "name": "svelte-kanban",
-  "private": true,
-  "version": "0.2.0",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage",
-    "lint": "eslint",
-    "format": "eslint --fix",
-    "deploy": "vercel --prod"
-  },
-  "devDependencies": {
-    "@supabase/supabase-js": "^1.2.1",
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.41",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/svelte": "^3.0.0",
-    "@vitest/ui": "^0.9.4",
-    "autoprefixer": "^10.4.4",
-    "cssnano": "^5.1.7",
-    "eslint": "^8.13.0",
-    "gravatar-url": "^4.0.1",
-    "jsdom": "^19.0.0",
-    "svelte": "^3.29.0",
-    "svelte-dnd-action": "^0.8.6",
-    "tinro": "^0.5.8",
-    "vercel": "^24.1.0",
-    "vite": "^2.9.5",
-    "vitest": "^0.9.4"
-  }
+	"name": "svelte-kanban",
+	"version": "0.3.0",
+	"private": true,
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
+		"test:unit": "vitest",
+		"lint": "prettier --plugin-search-dir . --check . && eslint .",
+		"format": "prettier --plugin-search-dir . --write ."
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^1.0.0",
+		"@sveltejs/kit": "^1.0.0",
+		"eslint": "^8.28.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-svelte3": "^4.0.0",
+		"gravatar-url": "^4.0.1",
+		"prettier": "^2.8.0",
+		"prettier-plugin-svelte": "^2.8.1",
+		"svelte": "^3.54.0",
+		"svelte-check": "^2.9.2",
+		"svelte-dnd-action": "^0.9.22",
+		"typescript": "^4.9.3",
+		"vite": "^4.0.0",
+		"vitest": "^0.25.3"
+	},
+	"type": "module",
+	"dependencies": {
+		"@supabase/supabase-js": "2.2.3"
+	}
 }

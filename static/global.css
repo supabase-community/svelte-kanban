@@ -1,0 +1,46 @@
+* {
+  box-sizing: border-box;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+/* place global styles here */
+body {
+  font-family: Inter, Arial, sans;
+  margin: 0;
+  background: rgb(0, 174, 204);
+}
+
+input {
+  padding: 0.5rem 0.5rem;
+  border-radius: 3px;
+  border: none;
+  box-shadow: 0 1px #CCC;
+  font-size: 0.9rem;
+}
+
+input:focus {
+  outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 22px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 3px;
+}
