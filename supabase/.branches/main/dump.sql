@@ -1,0 +1,3035 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 15.1 (Debian 15.1-1.pgdg110+1)
+-- Dumped by pg_dump version 15.1 (Debian 15.1-1.pgdg110+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: _realtime; Type: SCHEMA; Schema: -; Owner: supabase_admin
+--
+
+CREATE SCHEMA "_realtime";
+
+
+ALTER SCHEMA "_realtime" OWNER TO "supabase_admin";
+
+--
+-- Name: auth; Type: SCHEMA; Schema: -; Owner: supabase_admin
+--
+
+CREATE SCHEMA "auth";
+
+
+ALTER SCHEMA "auth" OWNER TO "supabase_admin";
+
+--
+-- Name: graphql; Type: SCHEMA; Schema: -; Owner: supabase_admin
+--
+
+CREATE SCHEMA "graphql";
+
+
+ALTER SCHEMA "graphql" OWNER TO "supabase_admin";
+
+--
+-- Name: graphql_public; Type: SCHEMA; Schema: -; Owner: supabase_admin
+--
+
+CREATE SCHEMA "graphql_public";
+
+
+ALTER SCHEMA "graphql_public" OWNER TO "supabase_admin";
+
+--
+-- Name: pgsodium; Type: EXTENSION; Schema: -; Owner: -
+--
+CREATE SCHEMA "pgsodium";
+
+ALTER SCHEMA "pgsodium" OWNER TO "supabase_admin";
+
+CREATE EXTENSION IF NOT EXISTS "pgsodium" WITH SCHEMA "pgsodium";
+
+
+--
+-- Name: realtime; Type: SCHEMA; Schema: -; Owner: supabase_admin
+--
+
+CREATE SCHEMA "realtime";
+
+
+ALTER SCHEMA "realtime" OWNER TO "supabase_admin";
+
+--
+-- Name: storage; Type: SCHEMA; Schema: -; Owner: supabase_admin
+--
+
+CREATE SCHEMA "storage";
+
+
+ALTER SCHEMA "storage" OWNER TO "supabase_admin";
+
+--
+-- Name: vault; Type: SCHEMA; Schema: -; Owner: supabase_admin
+--
+
+CREATE SCHEMA "vault";
+
+
+ALTER SCHEMA "vault" OWNER TO "supabase_admin";
+
+--
+-- Name: pg_graphql; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
+
+
+--
+-- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
+
+
+--
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
+
+
+--
+-- Name: pgjwt; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "pgjwt" WITH SCHEMA "extensions";
+
+
+--
+-- Name: supabase_vault; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
+
+
+--
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
+
+
+--
+-- Name: aal_level; Type: TYPE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TYPE "auth"."aal_level" AS ENUM (
+    'aal1',
+    'aal2',
+    'aal3'
+);
+
+
+ALTER TYPE "auth"."aal_level" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: factor_status; Type: TYPE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TYPE "auth"."factor_status" AS ENUM (
+    'unverified',
+    'verified'
+);
+
+
+ALTER TYPE "auth"."factor_status" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: factor_type; Type: TYPE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TYPE "auth"."factor_type" AS ENUM (
+    'totp',
+    'webauthn'
+);
+
+
+ALTER TYPE "auth"."factor_type" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: email(); Type: FUNCTION; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE FUNCTION "auth"."email"() RETURNS "text"
+    LANGUAGE "sql" STABLE
+    AS $$
+  select 
+  	coalesce(
+		nullif(current_setting('request.jwt.claim.email', true), ''),
+		(nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'email')
+	)::text
+$$;
+
+
+ALTER FUNCTION "auth"."email"() OWNER TO "supabase_auth_admin";
+
+--
+-- Name: jwt(); Type: FUNCTION; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE FUNCTION "auth"."jwt"() RETURNS "jsonb"
+    LANGUAGE "sql" STABLE
+    AS $$
+  select 
+    coalesce(
+        nullif(current_setting('request.jwt.claim', true), ''),
+        nullif(current_setting('request.jwt.claims', true), '')
+    )::jsonb
+$$;
+
+
+ALTER FUNCTION "auth"."jwt"() OWNER TO "supabase_auth_admin";
+
+--
+-- Name: role(); Type: FUNCTION; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE FUNCTION "auth"."role"() RETURNS "text"
+    LANGUAGE "sql" STABLE
+    AS $$
+  select 
+  	coalesce(
+		nullif(current_setting('request.jwt.claim.role', true), ''),
+		(nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role')
+	)::text
+$$;
+
+
+ALTER FUNCTION "auth"."role"() OWNER TO "supabase_auth_admin";
+
+--
+-- Name: uid(); Type: FUNCTION; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE FUNCTION "auth"."uid"() RETURNS "uuid"
+    LANGUAGE "sql" STABLE
+    AS $$
+  select 
+  	coalesce(
+		nullif(current_setting('request.jwt.claim.sub', true), ''),
+		(nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
+	)::uuid
+$$;
+
+
+ALTER FUNCTION "auth"."uid"() OWNER TO "supabase_auth_admin";
+
+--
+-- Name: sort_board(bigint, bigint[]); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION "public"."sort_board"("board_id" bigint, "list_ids" bigint[]) RETURNS boolean
+    LANGUAGE "plpgsql"
+    AS $$
+#variable_conflict use_variable
+declare
+  list_id bigint;
+begin
+  for i in 1 .. array_upper(list_ids, 1)
+   loop
+      list_id := list_ids[i];
+
+      update lists set position = i - 1
+        where lists.board_id = board_id
+            and lists.id = list_id;
+   end loop;
+
+   return true;
+end
+$$;
+
+
+ALTER FUNCTION "public"."sort_board"("board_id" bigint, "list_ids" bigint[]) OWNER TO "postgres";
+
+--
+-- Name: sort_list(bigint, bigint[]); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION "public"."sort_list"("new_list_id" bigint, "card_ids" bigint[]) RETURNS boolean
+    LANGUAGE "plpgsql"
+    AS $$
+#variable_conflict use_variable
+declare
+  card_id bigint;
+begin
+  for i in 1 .. array_upper(card_ids, 1)
+   loop
+      card_id := card_ids[i];
+
+      update cards set position = i - 1, list_id = new_list_id
+        where cards.id = card_id;
+   end loop;
+
+   return true;
+end
+$$;
+
+
+ALTER FUNCTION "public"."sort_list"("new_list_id" bigint, "card_ids" bigint[]) OWNER TO "postgres";
+
+--
+-- Name: extension("text"); Type: FUNCTION; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE FUNCTION "storage"."extension"("name" "text") RETURNS "text"
+    LANGUAGE "plpgsql"
+    AS $$
+DECLARE
+_parts text[];
+_filename text;
+BEGIN
+    select string_to_array(name, '/') into _parts;
+    select _parts[array_length(_parts,1)] into _filename;
+    -- @todo return the last part instead of 2
+    return split_part(_filename, '.', 2);
+END
+$$;
+
+
+ALTER FUNCTION "storage"."extension"("name" "text") OWNER TO "supabase_storage_admin";
+
+--
+-- Name: filename("text"); Type: FUNCTION; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE FUNCTION "storage"."filename"("name" "text") RETURNS "text"
+    LANGUAGE "plpgsql"
+    AS $$
+DECLARE
+_parts text[];
+BEGIN
+    select string_to_array(name, '/') into _parts;
+    return _parts[array_length(_parts,1)];
+END
+$$;
+
+
+ALTER FUNCTION "storage"."filename"("name" "text") OWNER TO "supabase_storage_admin";
+
+--
+-- Name: foldername("text"); Type: FUNCTION; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE FUNCTION "storage"."foldername"("name" "text") RETURNS "text"[]
+    LANGUAGE "plpgsql"
+    AS $$
+DECLARE
+_parts text[];
+BEGIN
+    select string_to_array(name, '/') into _parts;
+    return _parts[1:array_length(_parts,1)-1];
+END
+$$;
+
+
+ALTER FUNCTION "storage"."foldername"("name" "text") OWNER TO "supabase_storage_admin";
+
+--
+-- Name: get_size_by_bucket(); Type: FUNCTION; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE FUNCTION "storage"."get_size_by_bucket"() RETURNS TABLE("size" bigint, "bucket_id" "text")
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+    return query
+        select sum((metadata->>'size')::int) as size, obj.bucket_id
+        from "storage".objects as obj
+        group by obj.bucket_id;
+END
+$$;
+
+
+ALTER FUNCTION "storage"."get_size_by_bucket"() OWNER TO "supabase_storage_admin";
+
+--
+-- Name: search("text", "text", integer, integer, integer, "text", "text", "text"); Type: FUNCTION; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE FUNCTION "storage"."search"("prefix" "text", "bucketname" "text", "limits" integer DEFAULT 100, "levels" integer DEFAULT 1, "offsets" integer DEFAULT 0, "search" "text" DEFAULT ''::"text", "sortcolumn" "text" DEFAULT 'name'::"text", "sortorder" "text" DEFAULT 'asc'::"text") RETURNS TABLE("name" "text", "id" "uuid", "updated_at" timestamp with time zone, "created_at" timestamp with time zone, "last_accessed_at" timestamp with time zone, "metadata" "jsonb")
+    LANGUAGE "plpgsql" STABLE
+    AS $_$
+declare
+  v_order_by text;
+  v_sort_order text;
+begin
+  case
+    when sortcolumn = 'name' then
+      v_order_by = 'name';
+    when sortcolumn = 'updated_at' then
+      v_order_by = 'updated_at';
+    when sortcolumn = 'created_at' then
+      v_order_by = 'created_at';
+    when sortcolumn = 'last_accessed_at' then
+      v_order_by = 'last_accessed_at';
+    else
+      v_order_by = 'name';
+  end case;
+
+  case
+    when sortorder = 'asc' then
+      v_sort_order = 'asc';
+    when sortorder = 'desc' then
+      v_sort_order = 'desc';
+    else
+      v_sort_order = 'asc';
+  end case;
+
+  v_order_by = v_order_by || ' ' || v_sort_order;
+
+  return query execute
+    'with folders as (
+       select path_tokens[$1] as folder
+       from storage.objects
+         where objects.name ilike $2 || $3 || ''%''
+           and bucket_id = $4
+           and array_length(regexp_split_to_array(objects.name, ''/''), 1) <> $1
+       group by folder
+       order by folder ' || v_sort_order || '
+     )
+     (select folder as "name",
+            null as id,
+            null as updated_at,
+            null as created_at,
+            null as last_accessed_at,
+            null as metadata from folders)
+     union all
+     (select path_tokens[$1] as "name",
+            id,
+            updated_at,
+            created_at,
+            last_accessed_at,
+            metadata
+     from storage.objects
+     where objects.name ilike $2 || $3 || ''%''
+       and bucket_id = $4
+       and array_length(regexp_split_to_array(objects.name, ''/''), 1) = $1
+     order by ' || v_order_by || ')
+     limit $5
+     offset $6' using levels, prefix, search, bucketname, limits, offsets;
+end;
+$_$;
+
+
+ALTER FUNCTION "storage"."search"("prefix" "text", "bucketname" "text", "limits" integer, "levels" integer, "offsets" integer, "search" "text", "sortcolumn" "text", "sortorder" "text") OWNER TO "supabase_storage_admin";
+
+--
+-- Name: update_updated_at_column(); Type: FUNCTION; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE FUNCTION "storage"."update_updated_at_column"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW; 
+END;
+$$;
+
+
+ALTER FUNCTION "storage"."update_updated_at_column"() OWNER TO "supabase_storage_admin";
+
+--
+-- Name: secrets_encrypt_secret_secret(); Type: FUNCTION; Schema: vault; Owner: postgres
+--
+
+CREATE OR REPLACE FUNCTION "vault"."secrets_encrypt_secret_secret"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+		BEGIN
+		        new.secret = CASE WHEN new.secret IS NULL THEN NULL ELSE
+			CASE WHEN new.key_id IS NULL THEN NULL ELSE pg_catalog.encode(
+			  pgsodium.crypto_aead_det_encrypt(
+				pg_catalog.convert_to(new.secret, 'utf8'),
+				pg_catalog.convert_to((new.id::text || new.description::text || new.created_at::text || new.updated_at::text)::text, 'utf8'),
+				new.key_id::uuid,
+				new.nonce
+			  ),
+				'base64') END END;
+		RETURN new;
+		END;
+		$$;
+
+
+ALTER FUNCTION "vault"."secrets_encrypt_secret_secret"() OWNER TO "postgres";
+
+SET default_tablespace = '';
+
+SET default_table_access_method = "heap";
+
+--
+-- Name: extensions; Type: TABLE; Schema: _realtime; Owner: postgres
+--
+
+CREATE TABLE "_realtime"."extensions" (
+    "id" "uuid" NOT NULL,
+    "type" character varying(255),
+    "settings" "jsonb",
+    "tenant_external_id" character varying(255),
+    "inserted_at" timestamp(0) without time zone NOT NULL,
+    "updated_at" timestamp(0) without time zone NOT NULL
+);
+
+
+ALTER TABLE "_realtime"."extensions" OWNER TO "postgres";
+
+--
+-- Name: schema_migrations; Type: TABLE; Schema: _realtime; Owner: postgres
+--
+
+CREATE TABLE "_realtime"."schema_migrations" (
+    "version" bigint NOT NULL,
+    "inserted_at" timestamp(0) without time zone
+);
+
+
+ALTER TABLE "_realtime"."schema_migrations" OWNER TO "postgres";
+
+--
+-- Name: tenants; Type: TABLE; Schema: _realtime; Owner: postgres
+--
+
+CREATE TABLE "_realtime"."tenants" (
+    "id" "uuid" NOT NULL,
+    "name" character varying(255),
+    "external_id" character varying(255),
+    "jwt_secret" character varying(500),
+    "max_concurrent_users" integer DEFAULT 200 NOT NULL,
+    "inserted_at" timestamp(0) without time zone NOT NULL,
+    "updated_at" timestamp(0) without time zone NOT NULL,
+    "max_events_per_second" integer DEFAULT 100 NOT NULL,
+    "postgres_cdc_default" character varying(255) DEFAULT 'postgres_cdc_rls'::character varying
+);
+
+
+ALTER TABLE "_realtime"."tenants" OWNER TO "postgres";
+
+--
+-- Name: audit_log_entries; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."audit_log_entries" (
+    "instance_id" "uuid",
+    "id" "uuid" NOT NULL,
+    "payload" "json",
+    "created_at" timestamp with time zone,
+    "ip_address" character varying(64) DEFAULT ''::character varying NOT NULL
+);
+
+
+ALTER TABLE "auth"."audit_log_entries" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: identities; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."identities" (
+    "id" "text" NOT NULL,
+    "user_id" "uuid" NOT NULL,
+    "identity_data" "jsonb" NOT NULL,
+    "provider" "text" NOT NULL,
+    "last_sign_in_at" timestamp with time zone,
+    "created_at" timestamp with time zone,
+    "updated_at" timestamp with time zone
+);
+
+
+ALTER TABLE "auth"."identities" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: instances; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."instances" (
+    "id" "uuid" NOT NULL,
+    "uuid" "uuid",
+    "raw_base_config" "text",
+    "created_at" timestamp with time zone,
+    "updated_at" timestamp with time zone
+);
+
+
+ALTER TABLE "auth"."instances" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: mfa_amr_claims; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."mfa_amr_claims" (
+    "session_id" "uuid" NOT NULL,
+    "created_at" timestamp with time zone NOT NULL,
+    "updated_at" timestamp with time zone NOT NULL,
+    "authentication_method" "text" NOT NULL,
+    "id" "uuid" NOT NULL
+);
+
+
+ALTER TABLE "auth"."mfa_amr_claims" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: mfa_challenges; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."mfa_challenges" (
+    "id" "uuid" NOT NULL,
+    "factor_id" "uuid" NOT NULL,
+    "created_at" timestamp with time zone NOT NULL,
+    "verified_at" timestamp with time zone,
+    "ip_address" "inet" NOT NULL
+);
+
+
+ALTER TABLE "auth"."mfa_challenges" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: mfa_factors; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."mfa_factors" (
+    "id" "uuid" NOT NULL,
+    "user_id" "uuid" NOT NULL,
+    "friendly_name" "text",
+    "factor_type" "auth"."factor_type" NOT NULL,
+    "status" "auth"."factor_status" NOT NULL,
+    "created_at" timestamp with time zone NOT NULL,
+    "updated_at" timestamp with time zone NOT NULL,
+    "secret" "text"
+);
+
+
+ALTER TABLE "auth"."mfa_factors" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: refresh_tokens; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."refresh_tokens" (
+    "instance_id" "uuid",
+    "id" bigint NOT NULL,
+    "token" character varying(255),
+    "user_id" character varying(255),
+    "revoked" boolean,
+    "created_at" timestamp with time zone,
+    "updated_at" timestamp with time zone,
+    "parent" character varying(255),
+    "session_id" "uuid"
+);
+
+
+ALTER TABLE "auth"."refresh_tokens" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: refresh_tokens_id_seq; Type: SEQUENCE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE SEQUENCE "auth"."refresh_tokens_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "auth"."refresh_tokens_id_seq" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: refresh_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER SEQUENCE "auth"."refresh_tokens_id_seq" OWNED BY "auth"."refresh_tokens"."id";
+
+
+--
+-- Name: saml_providers; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."saml_providers" (
+    "id" "uuid" NOT NULL,
+    "sso_provider_id" "uuid" NOT NULL,
+    "entity_id" "text" NOT NULL,
+    "metadata_xml" "text" NOT NULL,
+    "metadata_url" "text",
+    "attribute_mapping" "jsonb",
+    "created_at" timestamp with time zone,
+    "updated_at" timestamp with time zone,
+    CONSTRAINT "entity_id not empty" CHECK (("char_length"("entity_id") > 0)),
+    CONSTRAINT "metadata_url not empty" CHECK ((("metadata_url" = NULL::"text") OR ("char_length"("metadata_url") > 0))),
+    CONSTRAINT "metadata_xml not empty" CHECK (("char_length"("metadata_xml") > 0))
+);
+
+
+ALTER TABLE "auth"."saml_providers" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: saml_relay_states; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."saml_relay_states" (
+    "id" "uuid" NOT NULL,
+    "sso_provider_id" "uuid" NOT NULL,
+    "request_id" "text" NOT NULL,
+    "for_email" "text",
+    "redirect_to" "text",
+    "from_ip_address" "inet",
+    "created_at" timestamp with time zone,
+    "updated_at" timestamp with time zone,
+    CONSTRAINT "request_id not empty" CHECK (("char_length"("request_id") > 0))
+);
+
+
+ALTER TABLE "auth"."saml_relay_states" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: schema_migrations; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."schema_migrations" (
+    "version" character varying(255) NOT NULL
+);
+
+
+ALTER TABLE "auth"."schema_migrations" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: sessions; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."sessions" (
+    "id" "uuid" NOT NULL,
+    "user_id" "uuid" NOT NULL,
+    "created_at" timestamp with time zone,
+    "updated_at" timestamp with time zone,
+    "factor_id" "uuid",
+    "aal" "auth"."aal_level"
+);
+
+
+ALTER TABLE "auth"."sessions" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: sso_domains; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."sso_domains" (
+    "id" "uuid" NOT NULL,
+    "sso_provider_id" "uuid" NOT NULL,
+    "domain" "text" NOT NULL,
+    "created_at" timestamp with time zone,
+    "updated_at" timestamp with time zone,
+    CONSTRAINT "domain not empty" CHECK (("char_length"("domain") > 0))
+);
+
+
+ALTER TABLE "auth"."sso_domains" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: sso_providers; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."sso_providers" (
+    "id" "uuid" NOT NULL,
+    "resource_id" "text",
+    "created_at" timestamp with time zone,
+    "updated_at" timestamp with time zone,
+    CONSTRAINT "resource_id not empty" CHECK ((("resource_id" = NULL::"text") OR ("char_length"("resource_id") > 0)))
+);
+
+
+ALTER TABLE "auth"."sso_providers" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: sso_sessions; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."sso_sessions" (
+    "id" "uuid" NOT NULL,
+    "session_id" "uuid" NOT NULL,
+    "sso_provider_id" "uuid",
+    "not_before" timestamp with time zone,
+    "not_after" timestamp with time zone,
+    "idp_initiated" boolean DEFAULT false,
+    "created_at" timestamp with time zone,
+    "updated_at" timestamp with time zone
+);
+
+
+ALTER TABLE "auth"."sso_sessions" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: users; Type: TABLE; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE TABLE "auth"."users" (
+    "instance_id" "uuid",
+    "id" "uuid" NOT NULL,
+    "aud" character varying(255),
+    "role" character varying(255),
+    "email" character varying(255),
+    "encrypted_password" character varying(255),
+    "email_confirmed_at" timestamp with time zone,
+    "invited_at" timestamp with time zone,
+    "confirmation_token" character varying(255),
+    "confirmation_sent_at" timestamp with time zone,
+    "recovery_token" character varying(255),
+    "recovery_sent_at" timestamp with time zone,
+    "email_change_token_new" character varying(255),
+    "email_change" character varying(255),
+    "email_change_sent_at" timestamp with time zone,
+    "last_sign_in_at" timestamp with time zone,
+    "raw_app_meta_data" "jsonb",
+    "raw_user_meta_data" "jsonb",
+    "is_super_admin" boolean,
+    "created_at" timestamp with time zone,
+    "updated_at" timestamp with time zone,
+    "phone" character varying(15) DEFAULT NULL::character varying,
+    "phone_confirmed_at" timestamp with time zone,
+    "phone_change" character varying(15) DEFAULT ''::character varying,
+    "phone_change_token" character varying(255) DEFAULT ''::character varying,
+    "phone_change_sent_at" timestamp with time zone,
+    "confirmed_at" timestamp with time zone GENERATED ALWAYS AS (LEAST("email_confirmed_at", "phone_confirmed_at")) STORED,
+    "email_change_token_current" character varying(255) DEFAULT ''::character varying,
+    "email_change_confirm_status" smallint DEFAULT 0,
+    "banned_until" timestamp with time zone,
+    "reauthentication_token" character varying(255) DEFAULT ''::character varying,
+    "reauthentication_sent_at" timestamp with time zone,
+    CONSTRAINT "users_email_change_confirm_status_check" CHECK ((("email_change_confirm_status" >= 0) AND ("email_change_confirm_status" <= 2)))
+);
+
+
+ALTER TABLE "auth"."users" OWNER TO "supabase_auth_admin";
+
+--
+-- Name: boards; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE "public"."boards" (
+    "id" bigint NOT NULL,
+    "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
+    "title" "text" DEFAULT ''::"text",
+    "position" integer DEFAULT 0 NOT NULL,
+    "inserted_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL
+);
+
+
+ALTER TABLE "public"."boards" OWNER TO "postgres";
+
+--
+-- Name: boards_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE "public"."boards" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."boards_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: cards; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE "public"."cards" (
+    "id" bigint NOT NULL,
+    "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
+    "list_id" bigint NOT NULL,
+    "position" integer DEFAULT 0 NOT NULL,
+    "description" "text",
+    "completed_at" timestamp with time zone,
+    "inserted_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
+    CONSTRAINT "cards_description_check" CHECK (("char_length"("description") > 0))
+);
+
+
+ALTER TABLE "public"."cards" OWNER TO "postgres";
+
+--
+-- Name: cards_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE "public"."cards" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."cards_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: lists; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE "public"."lists" (
+    "id" bigint NOT NULL,
+    "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
+    "board_id" bigint NOT NULL,
+    "title" "text" DEFAULT ''::"text",
+    "position" integer DEFAULT 0 NOT NULL,
+    "inserted_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL
+);
+
+
+ALTER TABLE "public"."lists" OWNER TO "postgres";
+
+--
+-- Name: lists_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE "public"."lists" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."lists_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: buckets; Type: TABLE; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE TABLE "storage"."buckets" (
+    "id" "text" NOT NULL,
+    "name" "text" NOT NULL,
+    "owner" "uuid",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "public" boolean DEFAULT false
+);
+
+
+ALTER TABLE "storage"."buckets" OWNER TO "supabase_storage_admin";
+
+--
+-- Name: migrations; Type: TABLE; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE TABLE "storage"."migrations" (
+    "id" integer NOT NULL,
+    "name" character varying(100) NOT NULL,
+    "hash" character varying(40) NOT NULL,
+    "executed_at" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE "storage"."migrations" OWNER TO "supabase_storage_admin";
+
+--
+-- Name: objects; Type: TABLE; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE TABLE "storage"."objects" (
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
+    "bucket_id" "text",
+    "name" "text",
+    "owner" "uuid",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "last_accessed_at" timestamp with time zone DEFAULT "now"(),
+    "metadata" "jsonb",
+    "path_tokens" "text"[] GENERATED ALWAYS AS ("string_to_array"("name", '/'::"text")) STORED
+);
+
+
+ALTER TABLE "storage"."objects" OWNER TO "supabase_storage_admin";
+
+--
+-- Name: decrypted_secrets; Type: VIEW; Schema: vault; Owner: postgres
+--
+
+CREATE OR REPLACE VIEW "vault"."decrypted_secrets" AS
+ SELECT "secrets"."id",
+    "secrets"."name",
+    "secrets"."description",
+    "secrets"."secret",
+        CASE
+            WHEN ("secrets"."secret" IS NULL) THEN NULL::"text"
+            ELSE
+            CASE
+                WHEN ("secrets"."key_id" IS NULL) THEN NULL::"text"
+                ELSE "convert_from"("pgsodium"."crypto_aead_det_decrypt"("decode"("secrets"."secret", 'base64'::"text"), "convert_to"((((("secrets"."id")::"text" || "secrets"."description") || ("secrets"."created_at")::"text") || ("secrets"."updated_at")::"text"), 'utf8'::"name"), "secrets"."key_id", "secrets"."nonce"), 'utf8'::"name")
+            END
+        END AS "decrypted_secret",
+    "secrets"."key_id",
+    "secrets"."nonce",
+    "secrets"."created_at",
+    "secrets"."updated_at"
+   FROM "vault"."secrets";
+
+
+ALTER TABLE "vault"."decrypted_secrets" OWNER TO "postgres";
+
+--
+-- Name: refresh_tokens id; Type: DEFAULT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."refresh_tokens" ALTER COLUMN "id" SET DEFAULT "nextval"('"auth"."refresh_tokens_id_seq"'::"regclass");
+
+
+--
+-- Data for Name: extensions; Type: TABLE DATA; Schema: _realtime; Owner: postgres
+--
+
+INSERT INTO "_realtime"."extensions" ("id", "type", "settings", "tenant_external_id", "inserted_at", "updated_at") VALUES ('935b3773-e37c-4b3e-baa1-2309ddb697cf', 'postgres_cdc_rls', '{"region": "us-east-1", "db_host": "I4YigNuoYSZbe+Xs4vInbw==", "db_name": "sWBpZNdjggEPTQVlI52Zfw==", "db_port": "MqmbZ5ZiXXFlSy8FeFYPAQ==", "db_user": "sWBpZNdjggEPTQVlI52Zfw==", "slot_name": "supabase_realtime_replication_slot", "ip_version": 4, "db_password": "sWBpZNdjggEPTQVlI52Zfw==", "publication": "supabase_realtime", "poll_interval_ms": 100, "poll_max_changes": 100, "poll_max_record_bytes": 1048576}', 'realtime-demo', '2022-11-14 23:04:49', '2022-11-14 23:04:49');
+
+
+--
+-- Data for Name: schema_migrations; Type: TABLE DATA; Schema: _realtime; Owner: postgres
+--
+
+INSERT INTO "_realtime"."schema_migrations" ("version", "inserted_at") VALUES (20210706140551, '2022-12-15 04:27:09');
+INSERT INTO "_realtime"."schema_migrations" ("version", "inserted_at") VALUES (20220329161857, '2022-12-15 04:27:09');
+INSERT INTO "_realtime"."schema_migrations" ("version", "inserted_at") VALUES (20220410212326, '2022-12-15 04:27:09');
+INSERT INTO "_realtime"."schema_migrations" ("version", "inserted_at") VALUES (20220506102948, '2022-12-15 04:27:09');
+INSERT INTO "_realtime"."schema_migrations" ("version", "inserted_at") VALUES (20220527210857, '2022-12-15 04:27:09');
+INSERT INTO "_realtime"."schema_migrations" ("version", "inserted_at") VALUES (20220815211129, '2022-12-15 04:27:09');
+INSERT INTO "_realtime"."schema_migrations" ("version", "inserted_at") VALUES (20220815215024, '2022-12-15 04:27:09');
+INSERT INTO "_realtime"."schema_migrations" ("version", "inserted_at") VALUES (20220818141501, '2022-12-15 04:27:09');
+INSERT INTO "_realtime"."schema_migrations" ("version", "inserted_at") VALUES (20221018173709, '2022-12-15 04:27:09');
+INSERT INTO "_realtime"."schema_migrations" ("version", "inserted_at") VALUES (20221102172703, '2022-12-15 04:27:09');
+
+
+--
+-- Data for Name: tenants; Type: TABLE DATA; Schema: _realtime; Owner: postgres
+--
+
+INSERT INTO "_realtime"."tenants" ("id", "name", "external_id", "jwt_secret", "max_concurrent_users", "inserted_at", "updated_at", "max_events_per_second", "postgres_cdc_default") VALUES ('98d09d90-612d-4a69-8c84-e8e5ecbaed6d', 'realtime-demo', 'realtime-demo', 'iNjicxc4+llvc9wovDvqymwfnj9teWMlyOIbJ8Fh6j2WNU8CIJ2ZgjR6MUIKqSmeDmvpsKLsZ9jgXJmQPpwL8w==', 300, '2022-11-14 23:04:49', '2022-11-14 23:04:49', 100, 'postgres_cdc_rls');
+
+
+--
+-- Data for Name: audit_log_entries; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: identities; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: instances; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: mfa_amr_claims; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: mfa_challenges; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: mfa_factors; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: refresh_tokens; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: saml_providers; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: saml_relay_states; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: schema_migrations; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20171026211738');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20171026211808');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20171026211834');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20180103212743');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20180108183307');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20180119214651');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20180125194653');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('00');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20210710035447');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20210722035447');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20210730183235');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20210909172000');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20210927181326');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20211122151130');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20211124214934');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20211202183645');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20220114185221');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20220114185340');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20220224000811');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20220323170000');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20220429102000');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20220531120530');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20220614074223');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20220811173540');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20221003041349');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20221003041400');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20221011041400');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20221020193600');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20221021073300');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20221021082433');
+INSERT INTO "auth"."schema_migrations" ("version") VALUES ('20221027105023');
+
+
+--
+-- Data for Name: sessions; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: sso_domains; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: sso_providers; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: sso_sessions; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
+--
+
+
+
+--
+-- Data for Name: boards; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- Data for Name: cards; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- Data for Name: lists; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- Data for Name: buckets; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+--
+
+
+
+--
+-- Data for Name: migrations; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+--
+
+INSERT INTO "storage"."migrations" ("id", "name", "hash", "executed_at") VALUES (0, 'create-migrations-table', 'e18db593bcde2aca2a408c4d1100f6abba2195df', '2022-12-14 17:16:56.385073');
+INSERT INTO "storage"."migrations" ("id", "name", "hash", "executed_at") VALUES (1, 'initialmigration', '6ab16121fbaa08bbd11b712d05f358f9b555d777', '2022-12-14 17:16:56.393739');
+INSERT INTO "storage"."migrations" ("id", "name", "hash", "executed_at") VALUES (2, 'pathtoken-column', '49756be03be4c17bb85fe70d4a861f27de7e49ad', '2022-12-14 17:16:56.398583');
+INSERT INTO "storage"."migrations" ("id", "name", "hash", "executed_at") VALUES (3, 'add-migrations-rls', 'bb5d124c53d68635a883e399426c6a5a25fc893d', '2022-12-14 17:16:56.429952');
+INSERT INTO "storage"."migrations" ("id", "name", "hash", "executed_at") VALUES (4, 'add-size-functions', '6d79007d04f5acd288c9c250c42d2d5fd286c54d', '2022-12-14 17:16:56.443332');
+INSERT INTO "storage"."migrations" ("id", "name", "hash", "executed_at") VALUES (5, 'change-column-name-in-get-size', 'fd65688505d2ffa9fbdc58a944348dd8604d688c', '2022-12-14 17:16:56.452704');
+INSERT INTO "storage"."migrations" ("id", "name", "hash", "executed_at") VALUES (6, 'add-rls-to-buckets', '63e2bab75a2040fee8e3fb3f15a0d26f3380e9b6', '2022-12-14 17:16:56.459977');
+INSERT INTO "storage"."migrations" ("id", "name", "hash", "executed_at") VALUES (7, 'add-public-to-buckets', '82568934f8a4d9e0a85f126f6fb483ad8214c418', '2022-12-14 17:16:56.467924');
+INSERT INTO "storage"."migrations" ("id", "name", "hash", "executed_at") VALUES (8, 'fix-search-function', '1a43a40eddb525f2e2f26efd709e6c06e58e059c', '2022-12-14 17:16:56.472925');
+INSERT INTO "storage"."migrations" ("id", "name", "hash", "executed_at") VALUES (9, 'search-files-search-function', '34c096597eb8b9d077fdfdde9878c88501b2fafc', '2022-12-14 17:16:56.4773');
+INSERT INTO "storage"."migrations" ("id", "name", "hash", "executed_at") VALUES (10, 'add-trigger-to-auto-update-updated_at-column', '37d6bb964a70a822e6d37f22f457b9bca7885928', '2022-12-14 17:16:56.486363');
+
+
+--
+-- Data for Name: objects; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
+--
+
+
+
+--
+-- Data for Name: secrets; Type: TABLE DATA; Schema: vault; Owner: postgres
+--
+
+
+
+--
+-- Name: refresh_tokens_id_seq; Type: SEQUENCE SET; Schema: auth; Owner: supabase_auth_admin
+--
+
+SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 1, false);
+
+
+--
+-- Name: boards_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('"public"."boards_id_seq"', 1, false);
+
+
+--
+-- Name: cards_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('"public"."cards_id_seq"', 1, false);
+
+
+--
+-- Name: lists_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('"public"."lists_id_seq"', 1, false);
+
+
+--
+-- Name: extensions extensions_pkey; Type: CONSTRAINT; Schema: _realtime; Owner: postgres
+--
+
+ALTER TABLE ONLY "_realtime"."extensions"
+    ADD CONSTRAINT "extensions_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: _realtime; Owner: postgres
+--
+
+ALTER TABLE ONLY "_realtime"."schema_migrations"
+    ADD CONSTRAINT "schema_migrations_pkey" PRIMARY KEY ("version");
+
+
+--
+-- Name: tenants tenants_pkey; Type: CONSTRAINT; Schema: _realtime; Owner: postgres
+--
+
+ALTER TABLE ONLY "_realtime"."tenants"
+    ADD CONSTRAINT "tenants_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: tenants uniq_external_id; Type: CONSTRAINT; Schema: _realtime; Owner: postgres
+--
+
+ALTER TABLE ONLY "_realtime"."tenants"
+    ADD CONSTRAINT "uniq_external_id" UNIQUE ("external_id");
+
+
+--
+-- Name: mfa_amr_claims amr_id_pk; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."mfa_amr_claims"
+    ADD CONSTRAINT "amr_id_pk" PRIMARY KEY ("id");
+
+
+--
+-- Name: audit_log_entries audit_log_entries_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."audit_log_entries"
+    ADD CONSTRAINT "audit_log_entries_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: identities identities_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."identities"
+    ADD CONSTRAINT "identities_pkey" PRIMARY KEY ("provider", "id");
+
+
+--
+-- Name: instances instances_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."instances"
+    ADD CONSTRAINT "instances_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: mfa_amr_claims mfa_amr_claims_session_id_authentication_method_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."mfa_amr_claims"
+    ADD CONSTRAINT "mfa_amr_claims_session_id_authentication_method_pkey" UNIQUE ("session_id", "authentication_method");
+
+
+--
+-- Name: mfa_challenges mfa_challenges_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."mfa_challenges"
+    ADD CONSTRAINT "mfa_challenges_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: mfa_factors mfa_factors_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."mfa_factors"
+    ADD CONSTRAINT "mfa_factors_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: refresh_tokens refresh_tokens_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."refresh_tokens"
+    ADD CONSTRAINT "refresh_tokens_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: refresh_tokens refresh_tokens_token_unique; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."refresh_tokens"
+    ADD CONSTRAINT "refresh_tokens_token_unique" UNIQUE ("token");
+
+
+--
+-- Name: saml_providers saml_providers_entity_id_key; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."saml_providers"
+    ADD CONSTRAINT "saml_providers_entity_id_key" UNIQUE ("entity_id");
+
+
+--
+-- Name: saml_providers saml_providers_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."saml_providers"
+    ADD CONSTRAINT "saml_providers_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: saml_relay_states saml_relay_states_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."saml_relay_states"
+    ADD CONSTRAINT "saml_relay_states_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."schema_migrations"
+    ADD CONSTRAINT "schema_migrations_pkey" PRIMARY KEY ("version");
+
+
+--
+-- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."sessions"
+    ADD CONSTRAINT "sessions_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: sso_domains sso_domains_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."sso_domains"
+    ADD CONSTRAINT "sso_domains_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: sso_providers sso_providers_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."sso_providers"
+    ADD CONSTRAINT "sso_providers_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: sso_sessions sso_sessions_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."sso_sessions"
+    ADD CONSTRAINT "sso_sessions_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: users users_email_key; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."users"
+    ADD CONSTRAINT "users_email_key" UNIQUE ("email");
+
+
+--
+-- Name: users users_phone_key; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."users"
+    ADD CONSTRAINT "users_phone_key" UNIQUE ("phone");
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."users"
+    ADD CONSTRAINT "users_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: boards boards_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "public"."boards"
+    ADD CONSTRAINT "boards_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: cards cards_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "public"."cards"
+    ADD CONSTRAINT "cards_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: lists lists_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "public"."lists"
+    ADD CONSTRAINT "lists_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: buckets buckets_pkey; Type: CONSTRAINT; Schema: storage; Owner: supabase_storage_admin
+--
+
+ALTER TABLE ONLY "storage"."buckets"
+    ADD CONSTRAINT "buckets_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: migrations migrations_name_key; Type: CONSTRAINT; Schema: storage; Owner: supabase_storage_admin
+--
+
+ALTER TABLE ONLY "storage"."migrations"
+    ADD CONSTRAINT "migrations_name_key" UNIQUE ("name");
+
+
+--
+-- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: storage; Owner: supabase_storage_admin
+--
+
+ALTER TABLE ONLY "storage"."migrations"
+    ADD CONSTRAINT "migrations_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: objects objects_pkey; Type: CONSTRAINT; Schema: storage; Owner: supabase_storage_admin
+--
+
+ALTER TABLE ONLY "storage"."objects"
+    ADD CONSTRAINT "objects_pkey" PRIMARY KEY ("id");
+
+
+--
+-- Name: extensions_tenant_external_id_type_index; Type: INDEX; Schema: _realtime; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "extensions_tenant_external_id_type_index" ON "_realtime"."extensions" USING "btree" ("tenant_external_id", "type");
+
+
+--
+-- Name: tenants_external_id_index; Type: INDEX; Schema: _realtime; Owner: postgres
+--
+
+CREATE UNIQUE INDEX "tenants_external_id_index" ON "_realtime"."tenants" USING "btree" ("external_id");
+
+
+--
+-- Name: audit_logs_instance_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "audit_logs_instance_id_idx" ON "auth"."audit_log_entries" USING "btree" ("instance_id");
+
+
+--
+-- Name: confirmation_token_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE UNIQUE INDEX "confirmation_token_idx" ON "auth"."users" USING "btree" ("confirmation_token") WHERE (("confirmation_token")::"text" !~ '^[0-9 ]*$'::"text");
+
+
+--
+-- Name: email_change_token_current_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE UNIQUE INDEX "email_change_token_current_idx" ON "auth"."users" USING "btree" ("email_change_token_current") WHERE (("email_change_token_current")::"text" !~ '^[0-9 ]*$'::"text");
+
+
+--
+-- Name: email_change_token_new_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE UNIQUE INDEX "email_change_token_new_idx" ON "auth"."users" USING "btree" ("email_change_token_new") WHERE (("email_change_token_new")::"text" !~ '^[0-9 ]*$'::"text");
+
+
+--
+-- Name: factor_id_created_at_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "factor_id_created_at_idx" ON "auth"."mfa_factors" USING "btree" ("user_id", "created_at");
+
+
+--
+-- Name: identities_user_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "identities_user_id_idx" ON "auth"."identities" USING "btree" ("user_id");
+
+
+--
+-- Name: mfa_factors_user_friendly_name_unique; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE UNIQUE INDEX "mfa_factors_user_friendly_name_unique" ON "auth"."mfa_factors" USING "btree" ("friendly_name", "user_id") WHERE (TRIM(BOTH FROM "friendly_name") <> ''::"text");
+
+
+--
+-- Name: reauthentication_token_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE UNIQUE INDEX "reauthentication_token_idx" ON "auth"."users" USING "btree" ("reauthentication_token") WHERE (("reauthentication_token")::"text" !~ '^[0-9 ]*$'::"text");
+
+
+--
+-- Name: recovery_token_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE UNIQUE INDEX "recovery_token_idx" ON "auth"."users" USING "btree" ("recovery_token") WHERE (("recovery_token")::"text" !~ '^[0-9 ]*$'::"text");
+
+
+--
+-- Name: refresh_token_session_id; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "refresh_token_session_id" ON "auth"."refresh_tokens" USING "btree" ("session_id");
+
+
+--
+-- Name: refresh_tokens_instance_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "refresh_tokens_instance_id_idx" ON "auth"."refresh_tokens" USING "btree" ("instance_id");
+
+
+--
+-- Name: refresh_tokens_instance_id_user_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "refresh_tokens_instance_id_user_id_idx" ON "auth"."refresh_tokens" USING "btree" ("instance_id", "user_id");
+
+
+--
+-- Name: refresh_tokens_parent_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "refresh_tokens_parent_idx" ON "auth"."refresh_tokens" USING "btree" ("parent");
+
+
+--
+-- Name: refresh_tokens_session_id_revoked_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "refresh_tokens_session_id_revoked_idx" ON "auth"."refresh_tokens" USING "btree" ("session_id", "revoked");
+
+
+--
+-- Name: refresh_tokens_token_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "refresh_tokens_token_idx" ON "auth"."refresh_tokens" USING "btree" ("token");
+
+
+--
+-- Name: saml_providers_sso_provider_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "saml_providers_sso_provider_id_idx" ON "auth"."saml_providers" USING "btree" ("sso_provider_id");
+
+
+--
+-- Name: saml_relay_states_for_email_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "saml_relay_states_for_email_idx" ON "auth"."saml_relay_states" USING "btree" ("for_email");
+
+
+--
+-- Name: saml_relay_states_sso_provider_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "saml_relay_states_sso_provider_id_idx" ON "auth"."saml_relay_states" USING "btree" ("sso_provider_id");
+
+
+--
+-- Name: sessions_user_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "sessions_user_id_idx" ON "auth"."sessions" USING "btree" ("user_id");
+
+
+--
+-- Name: sso_domains_domain_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE UNIQUE INDEX "sso_domains_domain_idx" ON "auth"."sso_domains" USING "btree" ("lower"("domain"));
+
+
+--
+-- Name: sso_domains_sso_provider_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "sso_domains_sso_provider_id_idx" ON "auth"."sso_domains" USING "btree" ("sso_provider_id");
+
+
+--
+-- Name: sso_providers_resource_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE UNIQUE INDEX "sso_providers_resource_id_idx" ON "auth"."sso_providers" USING "btree" ("lower"("resource_id"));
+
+
+--
+-- Name: sso_sessions_session_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "sso_sessions_session_id_idx" ON "auth"."sso_sessions" USING "btree" ("session_id");
+
+
+--
+-- Name: sso_sessions_sso_provider_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "sso_sessions_sso_provider_id_idx" ON "auth"."sso_sessions" USING "btree" ("sso_provider_id");
+
+
+--
+-- Name: user_id_created_at_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "user_id_created_at_idx" ON "auth"."sessions" USING "btree" ("user_id", "created_at");
+
+
+--
+-- Name: users_instance_id_email_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "users_instance_id_email_idx" ON "auth"."users" USING "btree" ("instance_id", "lower"(("email")::"text"));
+
+
+--
+-- Name: users_instance_id_idx; Type: INDEX; Schema: auth; Owner: supabase_auth_admin
+--
+
+CREATE INDEX "users_instance_id_idx" ON "auth"."users" USING "btree" ("instance_id");
+
+
+--
+-- Name: bname; Type: INDEX; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE UNIQUE INDEX "bname" ON "storage"."buckets" USING "btree" ("name");
+
+
+--
+-- Name: bucketid_objname; Type: INDEX; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE UNIQUE INDEX "bucketid_objname" ON "storage"."objects" USING "btree" ("bucket_id", "name");
+
+
+--
+-- Name: name_prefix_search; Type: INDEX; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE INDEX "name_prefix_search" ON "storage"."objects" USING "btree" ("name" "text_pattern_ops");
+
+
+--
+-- Name: objects update_objects_updated_at; Type: TRIGGER; Schema: storage; Owner: supabase_storage_admin
+--
+
+CREATE TRIGGER "update_objects_updated_at" BEFORE UPDATE ON "storage"."objects" FOR EACH ROW EXECUTE FUNCTION "storage"."update_updated_at_column"();
+
+
+--
+-- Name: extensions extensions_tenant_external_id_fkey; Type: FK CONSTRAINT; Schema: _realtime; Owner: postgres
+--
+
+ALTER TABLE ONLY "_realtime"."extensions"
+    ADD CONSTRAINT "extensions_tenant_external_id_fkey" FOREIGN KEY ("tenant_external_id") REFERENCES "_realtime"."tenants"("external_id") ON DELETE CASCADE;
+
+
+--
+-- Name: identities identities_user_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."identities"
+    ADD CONSTRAINT "identities_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+--
+-- Name: mfa_amr_claims mfa_amr_claims_session_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."mfa_amr_claims"
+    ADD CONSTRAINT "mfa_amr_claims_session_id_fkey" FOREIGN KEY ("session_id") REFERENCES "auth"."sessions"("id") ON DELETE CASCADE;
+
+
+--
+-- Name: mfa_challenges mfa_challenges_auth_factor_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."mfa_challenges"
+    ADD CONSTRAINT "mfa_challenges_auth_factor_id_fkey" FOREIGN KEY ("factor_id") REFERENCES "auth"."mfa_factors"("id") ON DELETE CASCADE;
+
+
+--
+-- Name: mfa_factors mfa_factors_user_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."mfa_factors"
+    ADD CONSTRAINT "mfa_factors_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+--
+-- Name: refresh_tokens refresh_tokens_parent_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."refresh_tokens"
+    ADD CONSTRAINT "refresh_tokens_parent_fkey" FOREIGN KEY ("parent") REFERENCES "auth"."refresh_tokens"("token");
+
+
+--
+-- Name: refresh_tokens refresh_tokens_session_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."refresh_tokens"
+    ADD CONSTRAINT "refresh_tokens_session_id_fkey" FOREIGN KEY ("session_id") REFERENCES "auth"."sessions"("id") ON DELETE CASCADE;
+
+
+--
+-- Name: saml_providers saml_providers_sso_provider_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."saml_providers"
+    ADD CONSTRAINT "saml_providers_sso_provider_id_fkey" FOREIGN KEY ("sso_provider_id") REFERENCES "auth"."sso_providers"("id") ON DELETE CASCADE;
+
+
+--
+-- Name: saml_relay_states saml_relay_states_sso_provider_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."saml_relay_states"
+    ADD CONSTRAINT "saml_relay_states_sso_provider_id_fkey" FOREIGN KEY ("sso_provider_id") REFERENCES "auth"."sso_providers"("id") ON DELETE CASCADE;
+
+
+--
+-- Name: sessions sessions_user_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."sessions"
+    ADD CONSTRAINT "sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+--
+-- Name: sso_domains sso_domains_sso_provider_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."sso_domains"
+    ADD CONSTRAINT "sso_domains_sso_provider_id_fkey" FOREIGN KEY ("sso_provider_id") REFERENCES "auth"."sso_providers"("id") ON DELETE CASCADE;
+
+
+--
+-- Name: sso_sessions sso_sessions_session_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."sso_sessions"
+    ADD CONSTRAINT "sso_sessions_session_id_fkey" FOREIGN KEY ("session_id") REFERENCES "auth"."sessions"("id") ON DELETE CASCADE;
+
+
+--
+-- Name: sso_sessions sso_sessions_sso_provider_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER TABLE ONLY "auth"."sso_sessions"
+    ADD CONSTRAINT "sso_sessions_sso_provider_id_fkey" FOREIGN KEY ("sso_provider_id") REFERENCES "auth"."sso_providers"("id") ON DELETE CASCADE;
+
+
+--
+-- Name: boards boards_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "public"."boards"
+    ADD CONSTRAINT "boards_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id");
+
+
+--
+-- Name: cards cards_list_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "public"."cards"
+    ADD CONSTRAINT "cards_list_id_fkey" FOREIGN KEY ("list_id") REFERENCES "public"."lists"("id");
+
+
+--
+-- Name: cards cards_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "public"."cards"
+    ADD CONSTRAINT "cards_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id");
+
+
+--
+-- Name: lists lists_board_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "public"."lists"
+    ADD CONSTRAINT "lists_board_id_fkey" FOREIGN KEY ("board_id") REFERENCES "public"."boards"("id");
+
+
+--
+-- Name: lists lists_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "public"."lists"
+    ADD CONSTRAINT "lists_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id");
+
+
+--
+-- Name: buckets buckets_owner_fkey; Type: FK CONSTRAINT; Schema: storage; Owner: supabase_storage_admin
+--
+
+ALTER TABLE ONLY "storage"."buckets"
+    ADD CONSTRAINT "buckets_owner_fkey" FOREIGN KEY ("owner") REFERENCES "auth"."users"("id");
+
+
+--
+-- Name: objects objects_bucketId_fkey; Type: FK CONSTRAINT; Schema: storage; Owner: supabase_storage_admin
+--
+
+ALTER TABLE ONLY "storage"."objects"
+    ADD CONSTRAINT "objects_bucketId_fkey" FOREIGN KEY ("bucket_id") REFERENCES "storage"."buckets"("id");
+
+
+--
+-- Name: objects objects_owner_fkey; Type: FK CONSTRAINT; Schema: storage; Owner: supabase_storage_admin
+--
+
+ALTER TABLE ONLY "storage"."objects"
+    ADD CONSTRAINT "objects_owner_fkey" FOREIGN KEY ("owner") REFERENCES "auth"."users"("id");
+
+
+--
+-- Name: boards Individuals can create boards.; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can create boards." ON "public"."boards" FOR INSERT WITH CHECK (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: cards Individuals can create cards.; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can create cards." ON "public"."cards" FOR INSERT WITH CHECK (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: lists Individuals can create lists.; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can create lists." ON "public"."lists" FOR INSERT WITH CHECK (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: boards Individuals can delete their own boards.; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can delete their own boards." ON "public"."boards" FOR DELETE USING (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: cards Individuals can delete their own cards.; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can delete their own cards." ON "public"."cards" FOR DELETE USING (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: lists Individuals can delete their own lists.; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can delete their own lists." ON "public"."lists" FOR DELETE USING (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: boards Individuals can update their own boards.; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can update their own boards." ON "public"."boards" FOR UPDATE USING (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: cards Individuals can update their own cards.; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can update their own cards." ON "public"."cards" FOR UPDATE USING (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: lists Individuals can update their own lists.; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can update their own lists." ON "public"."lists" FOR UPDATE USING (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: boards Individuals can view their own boards. ; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can view their own boards. " ON "public"."boards" FOR SELECT USING (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: cards Individuals can view their own cards. ; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can view their own cards. " ON "public"."cards" FOR SELECT USING (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: lists Individuals can view their own lists. ; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Individuals can view their own lists. " ON "public"."lists" FOR SELECT USING (("auth"."uid"() = "user_id"));
+
+
+--
+-- Name: boards; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE "public"."boards" ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: cards; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE "public"."cards" ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: lists; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE "public"."lists" ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: buckets; Type: ROW SECURITY; Schema: storage; Owner: supabase_storage_admin
+--
+
+ALTER TABLE "storage"."buckets" ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: migrations; Type: ROW SECURITY; Schema: storage; Owner: supabase_storage_admin
+--
+
+ALTER TABLE "storage"."migrations" ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: objects; Type: ROW SECURITY; Schema: storage; Owner: supabase_storage_admin
+--
+
+ALTER TABLE "storage"."objects" ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: SCHEMA "auth"; Type: ACL; Schema: -; Owner: supabase_admin
+--
+
+GRANT USAGE ON SCHEMA "auth" TO "anon";
+GRANT USAGE ON SCHEMA "auth" TO "authenticated";
+GRANT USAGE ON SCHEMA "auth" TO "service_role";
+GRANT ALL ON SCHEMA "auth" TO "supabase_auth_admin";
+GRANT ALL ON SCHEMA "auth" TO "dashboard_user";
+GRANT ALL ON SCHEMA "auth" TO "postgres";
+
+
+--
+-- Name: SCHEMA "graphql_public"; Type: ACL; Schema: -; Owner: supabase_admin
+--
+
+GRANT USAGE ON SCHEMA "graphql_public" TO "postgres";
+GRANT USAGE ON SCHEMA "graphql_public" TO "anon";
+GRANT USAGE ON SCHEMA "graphql_public" TO "authenticated";
+GRANT USAGE ON SCHEMA "graphql_public" TO "service_role";
+
+
+--
+-- Name: SCHEMA "public"; Type: ACL; Schema: -; Owner: pg_database_owner
+--
+
+GRANT USAGE ON SCHEMA "public" TO "postgres";
+GRANT USAGE ON SCHEMA "public" TO "anon";
+GRANT USAGE ON SCHEMA "public" TO "authenticated";
+GRANT USAGE ON SCHEMA "public" TO "service_role";
+
+
+--
+-- Name: SCHEMA "realtime"; Type: ACL; Schema: -; Owner: supabase_admin
+--
+
+GRANT USAGE ON SCHEMA "realtime" TO "postgres";
+
+
+--
+-- Name: SCHEMA "storage"; Type: ACL; Schema: -; Owner: supabase_admin
+--
+
+GRANT ALL ON SCHEMA "storage" TO "postgres";
+GRANT USAGE ON SCHEMA "storage" TO "anon";
+GRANT USAGE ON SCHEMA "storage" TO "authenticated";
+GRANT USAGE ON SCHEMA "storage" TO "service_role";
+GRANT ALL ON SCHEMA "storage" TO "supabase_storage_admin";
+GRANT ALL ON SCHEMA "storage" TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "email"(); Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON FUNCTION "auth"."email"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "jwt"(); Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON FUNCTION "auth"."jwt"() TO "postgres";
+GRANT ALL ON FUNCTION "auth"."jwt"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "role"(); Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON FUNCTION "auth"."role"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "uid"(); Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON FUNCTION "auth"."uid"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "algorithm_sign"("signables" "text", "secret" "text", "algorithm" "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."algorithm_sign"("signables" "text", "secret" "text", "algorithm" "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "armor"("bytea"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."armor"("bytea") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "armor"("bytea", "text"[], "text"[]); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."armor"("bytea", "text"[], "text"[]) TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "crypt"("text", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."crypt"("text", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "dearmor"("text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."dearmor"("text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "decrypt"("bytea", "bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."decrypt"("bytea", "bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "decrypt_iv"("bytea", "bytea", "bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."decrypt_iv"("bytea", "bytea", "bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "digest"("bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."digest"("bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "digest"("text", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."digest"("text", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "encrypt"("bytea", "bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."encrypt"("bytea", "bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "encrypt_iv"("bytea", "bytea", "bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."encrypt_iv"("bytea", "bytea", "bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "gen_random_bytes"(integer); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."gen_random_bytes"(integer) TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "gen_random_uuid"(); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."gen_random_uuid"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "gen_salt"("text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."gen_salt"("text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "gen_salt"("text", integer); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."gen_salt"("text", integer) TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "hmac"("bytea", "bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."hmac"("bytea", "bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "hmac"("text", "text", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."hmac"("text", "text", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pg_stat_statements"("showtext" boolean, OUT "userid" "oid", OUT "dbid" "oid", OUT "toplevel" boolean, OUT "queryid" bigint, OUT "query" "text", OUT "plans" bigint, OUT "total_plan_time" double precision, OUT "min_plan_time" double precision, OUT "max_plan_time" double precision, OUT "mean_plan_time" double precision, OUT "stddev_plan_time" double precision, OUT "calls" bigint, OUT "total_exec_time" double precision, OUT "min_exec_time" double precision, OUT "max_exec_time" double precision, OUT "mean_exec_time" double precision, OUT "stddev_exec_time" double precision, OUT "rows" bigint, OUT "shared_blks_hit" bigint, OUT "shared_blks_read" bigint, OUT "shared_blks_dirtied" bigint, OUT "shared_blks_written" bigint, OUT "local_blks_hit" bigint, OUT "local_blks_read" bigint, OUT "local_blks_dirtied" bigint, OUT "local_blks_written" bigint, OUT "temp_blks_read" bigint, OUT "temp_blks_written" bigint, OUT "blk_read_time" double precision, OUT "blk_write_time" double precision, OUT "temp_blk_read_time" double precision, OUT "temp_blk_write_time" double precision, OUT "wal_records" bigint, OUT "wal_fpi" bigint, OUT "wal_bytes" numeric, OUT "jit_functions" bigint, OUT "jit_generation_time" double precision, OUT "jit_inlining_count" bigint, OUT "jit_inlining_time" double precision, OUT "jit_optimization_count" bigint, OUT "jit_optimization_time" double precision, OUT "jit_emission_count" bigint, OUT "jit_emission_time" double precision); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pg_stat_statements"("showtext" boolean, OUT "userid" "oid", OUT "dbid" "oid", OUT "toplevel" boolean, OUT "queryid" bigint, OUT "query" "text", OUT "plans" bigint, OUT "total_plan_time" double precision, OUT "min_plan_time" double precision, OUT "max_plan_time" double precision, OUT "mean_plan_time" double precision, OUT "stddev_plan_time" double precision, OUT "calls" bigint, OUT "total_exec_time" double precision, OUT "min_exec_time" double precision, OUT "max_exec_time" double precision, OUT "mean_exec_time" double precision, OUT "stddev_exec_time" double precision, OUT "rows" bigint, OUT "shared_blks_hit" bigint, OUT "shared_blks_read" bigint, OUT "shared_blks_dirtied" bigint, OUT "shared_blks_written" bigint, OUT "local_blks_hit" bigint, OUT "local_blks_read" bigint, OUT "local_blks_dirtied" bigint, OUT "local_blks_written" bigint, OUT "temp_blks_read" bigint, OUT "temp_blks_written" bigint, OUT "blk_read_time" double precision, OUT "blk_write_time" double precision, OUT "temp_blk_read_time" double precision, OUT "temp_blk_write_time" double precision, OUT "wal_records" bigint, OUT "wal_fpi" bigint, OUT "wal_bytes" numeric, OUT "jit_functions" bigint, OUT "jit_generation_time" double precision, OUT "jit_inlining_count" bigint, OUT "jit_inlining_time" double precision, OUT "jit_optimization_count" bigint, OUT "jit_optimization_time" double precision, OUT "jit_emission_count" bigint, OUT "jit_emission_time" double precision) TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pg_stat_statements_info"(OUT "dealloc" bigint, OUT "stats_reset" timestamp with time zone); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pg_stat_statements_info"(OUT "dealloc" bigint, OUT "stats_reset" timestamp with time zone) TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pg_stat_statements_reset"("userid" "oid", "dbid" "oid", "queryid" bigint); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pg_stat_statements_reset"("userid" "oid", "dbid" "oid", "queryid" bigint) TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_armor_headers"("text", OUT "key" "text", OUT "value" "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_armor_headers"("text", OUT "key" "text", OUT "value" "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_key_id"("bytea"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_key_id"("bytea") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_pub_decrypt"("bytea", "bytea"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_pub_decrypt"("bytea", "bytea") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_pub_decrypt"("bytea", "bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_pub_decrypt"("bytea", "bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_pub_decrypt"("bytea", "bytea", "text", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_pub_decrypt"("bytea", "bytea", "text", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_pub_decrypt_bytea"("bytea", "bytea"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_pub_decrypt_bytea"("bytea", "bytea") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_pub_decrypt_bytea"("bytea", "bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_pub_decrypt_bytea"("bytea", "bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_pub_decrypt_bytea"("bytea", "bytea", "text", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_pub_decrypt_bytea"("bytea", "bytea", "text", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_pub_encrypt"("text", "bytea"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_pub_encrypt"("text", "bytea") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_pub_encrypt"("text", "bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_pub_encrypt"("text", "bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_pub_encrypt_bytea"("bytea", "bytea"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_pub_encrypt_bytea"("bytea", "bytea") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_pub_encrypt_bytea"("bytea", "bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_pub_encrypt_bytea"("bytea", "bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_sym_decrypt"("bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_sym_decrypt"("bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_sym_decrypt"("bytea", "text", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_sym_decrypt"("bytea", "text", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_sym_decrypt_bytea"("bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_sym_decrypt_bytea"("bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_sym_decrypt_bytea"("bytea", "text", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_sym_decrypt_bytea"("bytea", "text", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_sym_encrypt"("text", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_sym_encrypt"("text", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_sym_encrypt"("text", "text", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_sym_encrypt"("text", "text", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_sym_encrypt_bytea"("bytea", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_sym_encrypt_bytea"("bytea", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "pgp_sym_encrypt_bytea"("bytea", "text", "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."pgp_sym_encrypt_bytea"("bytea", "text", "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "sign"("payload" "json", "secret" "text", "algorithm" "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."sign"("payload" "json", "secret" "text", "algorithm" "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "try_cast_double"("inp" "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."try_cast_double"("inp" "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "url_decode"("data" "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."url_decode"("data" "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "url_encode"("data" "bytea"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."url_encode"("data" "bytea") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "uuid_generate_v1"(); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."uuid_generate_v1"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "uuid_generate_v1mc"(); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."uuid_generate_v1mc"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "uuid_generate_v3"("namespace" "uuid", "name" "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."uuid_generate_v3"("namespace" "uuid", "name" "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "uuid_generate_v4"(); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."uuid_generate_v4"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "uuid_generate_v5"("namespace" "uuid", "name" "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."uuid_generate_v5"("namespace" "uuid", "name" "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "uuid_nil"(); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."uuid_nil"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "uuid_ns_dns"(); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."uuid_ns_dns"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "uuid_ns_oid"(); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."uuid_ns_oid"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "uuid_ns_url"(); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."uuid_ns_url"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "uuid_ns_x500"(); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."uuid_ns_x500"() TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "verify"("token" "text", "secret" "text", "algorithm" "text"); Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "extensions"."verify"("token" "text", "secret" "text", "algorithm" "text") TO "dashboard_user";
+
+
+--
+-- Name: FUNCTION "comment_directive"("comment_" "text"); Type: ACL; Schema: graphql; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "graphql"."comment_directive"("comment_" "text") TO "anon";
+GRANT ALL ON FUNCTION "graphql"."comment_directive"("comment_" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "graphql"."comment_directive"("comment_" "text") TO "service_role";
+
+
+--
+-- Name: FUNCTION "exception"("message" "text"); Type: ACL; Schema: graphql; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "graphql"."exception"("message" "text") TO "anon";
+GRANT ALL ON FUNCTION "graphql"."exception"("message" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "graphql"."exception"("message" "text") TO "service_role";
+
+
+--
+-- Name: FUNCTION "get_schema_version"(); Type: ACL; Schema: graphql; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "graphql"."get_schema_version"() TO "anon";
+GRANT ALL ON FUNCTION "graphql"."get_schema_version"() TO "authenticated";
+GRANT ALL ON FUNCTION "graphql"."get_schema_version"() TO "service_role";
+
+
+--
+-- Name: FUNCTION "increment_schema_version"(); Type: ACL; Schema: graphql; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "graphql"."increment_schema_version"() TO "anon";
+GRANT ALL ON FUNCTION "graphql"."increment_schema_version"() TO "authenticated";
+GRANT ALL ON FUNCTION "graphql"."increment_schema_version"() TO "service_role";
+
+
+--
+-- Name: FUNCTION "sort_board"("board_id" bigint, "list_ids" bigint[]); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "public"."sort_board"("board_id" bigint, "list_ids" bigint[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."sort_board"("board_id" bigint, "list_ids" bigint[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."sort_board"("board_id" bigint, "list_ids" bigint[]) TO "service_role";
+
+
+--
+-- Name: FUNCTION "sort_list"("new_list_id" bigint, "card_ids" bigint[]); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION "public"."sort_list"("new_list_id" bigint, "card_ids" bigint[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."sort_list"("new_list_id" bigint, "card_ids" bigint[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."sort_list"("new_list_id" bigint, "card_ids" bigint[]) TO "service_role";
+
+
+--
+-- Name: FUNCTION "extension"("name" "text"); Type: ACL; Schema: storage; Owner: supabase_storage_admin
+--
+
+GRANT ALL ON FUNCTION "storage"."extension"("name" "text") TO "anon";
+GRANT ALL ON FUNCTION "storage"."extension"("name" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "storage"."extension"("name" "text") TO "service_role";
+GRANT ALL ON FUNCTION "storage"."extension"("name" "text") TO "dashboard_user";
+GRANT ALL ON FUNCTION "storage"."extension"("name" "text") TO "postgres";
+
+
+--
+-- Name: FUNCTION "filename"("name" "text"); Type: ACL; Schema: storage; Owner: supabase_storage_admin
+--
+
+GRANT ALL ON FUNCTION "storage"."filename"("name" "text") TO "anon";
+GRANT ALL ON FUNCTION "storage"."filename"("name" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "storage"."filename"("name" "text") TO "service_role";
+GRANT ALL ON FUNCTION "storage"."filename"("name" "text") TO "dashboard_user";
+GRANT ALL ON FUNCTION "storage"."filename"("name" "text") TO "postgres";
+
+
+--
+-- Name: FUNCTION "foldername"("name" "text"); Type: ACL; Schema: storage; Owner: supabase_storage_admin
+--
+
+GRANT ALL ON FUNCTION "storage"."foldername"("name" "text") TO "anon";
+GRANT ALL ON FUNCTION "storage"."foldername"("name" "text") TO "authenticated";
+GRANT ALL ON FUNCTION "storage"."foldername"("name" "text") TO "service_role";
+GRANT ALL ON FUNCTION "storage"."foldername"("name" "text") TO "dashboard_user";
+GRANT ALL ON FUNCTION "storage"."foldername"("name" "text") TO "postgres";
+
+
+--
+-- Name: TABLE "audit_log_entries"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."audit_log_entries" TO "dashboard_user";
+GRANT ALL ON TABLE "auth"."audit_log_entries" TO "postgres";
+
+
+--
+-- Name: TABLE "identities"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."identities" TO "postgres";
+GRANT ALL ON TABLE "auth"."identities" TO "dashboard_user";
+
+
+--
+-- Name: TABLE "instances"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."instances" TO "dashboard_user";
+GRANT ALL ON TABLE "auth"."instances" TO "postgres";
+
+
+--
+-- Name: TABLE "mfa_amr_claims"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."mfa_amr_claims" TO "postgres";
+GRANT ALL ON TABLE "auth"."mfa_amr_claims" TO "dashboard_user";
+
+
+--
+-- Name: TABLE "mfa_challenges"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."mfa_challenges" TO "postgres";
+GRANT ALL ON TABLE "auth"."mfa_challenges" TO "dashboard_user";
+
+
+--
+-- Name: TABLE "mfa_factors"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."mfa_factors" TO "postgres";
+GRANT ALL ON TABLE "auth"."mfa_factors" TO "dashboard_user";
+
+
+--
+-- Name: TABLE "refresh_tokens"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."refresh_tokens" TO "dashboard_user";
+GRANT ALL ON TABLE "auth"."refresh_tokens" TO "postgres";
+
+
+--
+-- Name: SEQUENCE "refresh_tokens_id_seq"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON SEQUENCE "auth"."refresh_tokens_id_seq" TO "dashboard_user";
+GRANT ALL ON SEQUENCE "auth"."refresh_tokens_id_seq" TO "postgres";
+
+
+--
+-- Name: TABLE "saml_providers"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."saml_providers" TO "postgres";
+GRANT ALL ON TABLE "auth"."saml_providers" TO "dashboard_user";
+
+
+--
+-- Name: TABLE "saml_relay_states"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."saml_relay_states" TO "postgres";
+GRANT ALL ON TABLE "auth"."saml_relay_states" TO "dashboard_user";
+
+
+--
+-- Name: TABLE "schema_migrations"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."schema_migrations" TO "dashboard_user";
+GRANT ALL ON TABLE "auth"."schema_migrations" TO "postgres";
+
+
+--
+-- Name: TABLE "sessions"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."sessions" TO "postgres";
+GRANT ALL ON TABLE "auth"."sessions" TO "dashboard_user";
+
+
+--
+-- Name: TABLE "sso_domains"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."sso_domains" TO "postgres";
+GRANT ALL ON TABLE "auth"."sso_domains" TO "dashboard_user";
+
+
+--
+-- Name: TABLE "sso_providers"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."sso_providers" TO "postgres";
+GRANT ALL ON TABLE "auth"."sso_providers" TO "dashboard_user";
+
+
+--
+-- Name: TABLE "sso_sessions"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."sso_sessions" TO "postgres";
+GRANT ALL ON TABLE "auth"."sso_sessions" TO "dashboard_user";
+
+
+--
+-- Name: TABLE "users"; Type: ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+GRANT ALL ON TABLE "auth"."users" TO "dashboard_user";
+GRANT ALL ON TABLE "auth"."users" TO "postgres";
+
+
+--
+-- Name: TABLE "pg_stat_statements"; Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON TABLE "extensions"."pg_stat_statements" TO "dashboard_user";
+
+
+--
+-- Name: TABLE "pg_stat_statements_info"; Type: ACL; Schema: extensions; Owner: postgres
+--
+
+GRANT ALL ON TABLE "extensions"."pg_stat_statements_info" TO "dashboard_user";
+
+
+--
+-- Name: SEQUENCE "seq_schema_version"; Type: ACL; Schema: graphql; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE "graphql"."seq_schema_version" TO "anon";
+GRANT ALL ON SEQUENCE "graphql"."seq_schema_version" TO "authenticated";
+GRANT ALL ON SEQUENCE "graphql"."seq_schema_version" TO "service_role";
+
+
+--
+-- Name: TABLE "decrypted_key"; Type: ACL; Schema: pgsodium; Owner: postgres
+--
+
+GRANT ALL ON TABLE "pgsodium"."decrypted_key" TO "pgsodium_keyholder";
+
+
+--
+-- Name: TABLE "masking_rule"; Type: ACL; Schema: pgsodium; Owner: postgres
+--
+
+GRANT ALL ON TABLE "pgsodium"."masking_rule" TO "pgsodium_keyholder";
+
+
+--
+-- Name: TABLE "mask_columns"; Type: ACL; Schema: pgsodium; Owner: postgres
+--
+
+GRANT ALL ON TABLE "pgsodium"."mask_columns" TO "pgsodium_keyholder";
+
+
+--
+-- Name: TABLE "boards"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE "public"."boards" TO "anon";
+GRANT ALL ON TABLE "public"."boards" TO "authenticated";
+GRANT ALL ON TABLE "public"."boards" TO "service_role";
+
+
+--
+-- Name: SEQUENCE "boards_id_seq"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE "public"."boards_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."boards_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."boards_id_seq" TO "service_role";
+
+
+--
+-- Name: TABLE "cards"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE "public"."cards" TO "anon";
+GRANT ALL ON TABLE "public"."cards" TO "authenticated";
+GRANT ALL ON TABLE "public"."cards" TO "service_role";
+
+
+--
+-- Name: SEQUENCE "cards_id_seq"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE "public"."cards_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."cards_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."cards_id_seq" TO "service_role";
+
+
+--
+-- Name: TABLE "lists"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE "public"."lists" TO "anon";
+GRANT ALL ON TABLE "public"."lists" TO "authenticated";
+GRANT ALL ON TABLE "public"."lists" TO "service_role";
+
+
+--
+-- Name: SEQUENCE "lists_id_seq"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE "public"."lists_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."lists_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."lists_id_seq" TO "service_role";
+
+
+--
+-- Name: TABLE "buckets"; Type: ACL; Schema: storage; Owner: supabase_storage_admin
+--
+
+GRANT ALL ON TABLE "storage"."buckets" TO "anon";
+GRANT ALL ON TABLE "storage"."buckets" TO "authenticated";
+GRANT ALL ON TABLE "storage"."buckets" TO "service_role";
+GRANT ALL ON TABLE "storage"."buckets" TO "postgres";
+
+
+--
+-- Name: TABLE "migrations"; Type: ACL; Schema: storage; Owner: supabase_storage_admin
+--
+
+GRANT ALL ON TABLE "storage"."migrations" TO "anon";
+GRANT ALL ON TABLE "storage"."migrations" TO "authenticated";
+GRANT ALL ON TABLE "storage"."migrations" TO "service_role";
+GRANT ALL ON TABLE "storage"."migrations" TO "postgres";
+
+
+--
+-- Name: TABLE "objects"; Type: ACL; Schema: storage; Owner: supabase_storage_admin
+--
+
+GRANT ALL ON TABLE "storage"."objects" TO "anon";
+GRANT ALL ON TABLE "storage"."objects" TO "authenticated";
+GRANT ALL ON TABLE "storage"."objects" TO "service_role";
+GRANT ALL ON TABLE "storage"."objects" TO "postgres";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_auth_admin" IN SCHEMA "auth" GRANT ALL ON SEQUENCES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_auth_admin" IN SCHEMA "auth" GRANT ALL ON SEQUENCES  TO "dashboard_user";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_auth_admin" IN SCHEMA "auth" GRANT ALL ON FUNCTIONS  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_auth_admin" IN SCHEMA "auth" GRANT ALL ON FUNCTIONS  TO "dashboard_user";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: auth; Owner: supabase_auth_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_auth_admin" IN SCHEMA "auth" GRANT ALL ON TABLES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_auth_admin" IN SCHEMA "auth" GRANT ALL ON TABLES  TO "dashboard_user";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: graphql; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON SEQUENCES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON SEQUENCES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON SEQUENCES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON SEQUENCES  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: graphql; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON SEQUENCES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON SEQUENCES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON SEQUENCES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON SEQUENCES  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: graphql; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON FUNCTIONS  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON FUNCTIONS  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON FUNCTIONS  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON FUNCTIONS  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: graphql; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON FUNCTIONS  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON FUNCTIONS  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON FUNCTIONS  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON FUNCTIONS  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: graphql; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON TABLES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON TABLES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON TABLES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql" GRANT ALL ON TABLES  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: graphql; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON TABLES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON TABLES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON TABLES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "graphql" GRANT ALL ON TABLES  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: graphql_public; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON SEQUENCES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON SEQUENCES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON SEQUENCES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON SEQUENCES  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: graphql_public; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON FUNCTIONS  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON FUNCTIONS  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON FUNCTIONS  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON FUNCTIONS  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: graphql_public; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON TABLES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON TABLES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON TABLES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "graphql_public" GRANT ALL ON TABLES  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: public; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON TABLES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON TABLES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON TABLES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON TABLES  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: realtime; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "realtime" GRANT ALL ON SEQUENCES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "realtime" GRANT ALL ON SEQUENCES  TO "dashboard_user";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: realtime; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "realtime" GRANT ALL ON FUNCTIONS  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "realtime" GRANT ALL ON FUNCTIONS  TO "dashboard_user";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: realtime; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "realtime" GRANT ALL ON TABLES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "realtime" GRANT ALL ON TABLES  TO "dashboard_user";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: storage; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON SEQUENCES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON SEQUENCES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON SEQUENCES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON SEQUENCES  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: storage; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON FUNCTIONS  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON FUNCTIONS  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON FUNCTIONS  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON FUNCTIONS  TO "service_role";
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: storage; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON TABLES  TO "postgres";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON TABLES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON TABLES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "storage" GRANT ALL ON TABLES  TO "service_role";
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+RESET ALL;
